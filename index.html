@@ -10,69 +10,26 @@
 
   .container{max-width:900px;margin:0 auto;padding:70px 40px 120px;position:relative;z-index:1}
 
-  /* HERO */
-  .hero{
-    margin-bottom:72px;
-    padding-bottom:56px;
-    border-bottom:1px solid #111520;
-    animation:rise 1s ease forwards;opacity:0;
-  }
+  .hero{margin-bottom:72px;padding-bottom:56px;border-bottom:1px solid #111520;animation:rise 1s ease forwards;opacity:0}
 
-  .series-label{
-    font-family:'Cormorant Garamond',serif;
-    font-size:0.68rem;letter-spacing:0.45em;text-transform:uppercase;
-    color:#2a3a50;margin-bottom:28px;display:block;
-  }
+  .series-label{font-family:'Cormorant Garamond',serif;font-size:0.68rem;letter-spacing:0.45em;text-transform:uppercase;color:#2a3a50;margin-bottom:28px;display:block}
 
-  .title-lockup{position:relative;margin-bottom:24px}
+  h1{font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,14vw,10rem);font-weight:700;color:#d0dcea;line-height:0.9;letter-spacing:-0.03em;margin-bottom:0}
 
-  h1{
-    font-family:'Cormorant Garamond',serif;
-    font-size:clamp(5rem,14vw,10rem);
-    font-weight:700;color:#d0dcea;
-    line-height:0.9;letter-spacing:-0.03em;
-    margin-bottom:0;
-  }
-
-  .title-sub{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:1.05rem;
-    color:#2a3a50;
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-    margin-top:16px;
-    display:flex;align-items:center;gap:16px;
-  }
+  .title-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05rem;color:#2a3a50;letter-spacing:0.18em;text-transform:uppercase;margin-top:16px;display:flex;align-items:center;gap:16px}
   .title-sub::after{content:'';flex:1;height:1px;background:#111520}
 
-  .tagline{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;font-size:1.2rem;
-    color:#3a5070;line-height:1.7;
-    max-width:560px;margin-top:28px;
-  }
+  .tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;color:#3a5070;line-height:1.7;max-width:560px;margin-top:28px}
 
-  /* definition block — the word Exposure defined */
-  .definition{
-    margin-top:32px;
-    border-left:2px solid #1a2535;
-    padding:16px 24px;
-    max-width:520px;
-  }
+  .definition{margin-top:32px;border-left:2px solid #1a2535;padding:16px 24px;max-width:520px}
   .def-word{font-family:'Cormorant Garamond',serif;font-size:0.72rem;letter-spacing:0.25em;text-transform:uppercase;color:#2a3a50;margin-bottom:4px}
   .def-text{font-style:italic;font-size:0.95rem;color:#2a3840;line-height:1.8}
 
-  /* STATS */
-  .series-stats{
-    display:flex;gap:40px;margin-bottom:60px;
-    animation:rise 1s 0.2s ease forwards;opacity:0;
-    padding-bottom:40px;border-bottom:1px solid #111520;
-  }
+  .series-stats{display:flex;gap:40px;margin-bottom:60px;animation:rise 1s 0.2s ease forwards;opacity:0;padding-bottom:40px;border-bottom:1px solid #111520}
   .stat-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:#a08050;line-height:1}
   .stat-label{font-size:0.76rem;color:#2a3a50;letter-spacing:0.12em;text-transform:uppercase;margin-top:4px}
 
-  /* BOOKS */
+  /* BOOK CARDS — now as links */
   .books{display:flex;flex-direction:column;gap:0}
 
   .book{
@@ -82,9 +39,27 @@
     border-bottom:1px solid #0e1218;
     padding:30px 0;
     animation:rise 1s ease forwards;opacity:0;
-    transition:background 0.3s;
+    text-decoration:none;
+    color:inherit;
+    transition:background 0.25s;
+    cursor:pointer;
+    position:relative;
   }
-  .book:hover{background:rgba(255,255,255,0.012)}
+  .book::after{
+    content:'Read →';
+    position:absolute;right:0;top:50%;transform:translateY(-50%);
+    font-family:'Cormorant Garamond',serif;font-size:0.72rem;
+    letter-spacing:0.2em;text-transform:uppercase;
+    opacity:0;transition:opacity 0.25s;
+    padding-right:4px;
+  }
+  .book:hover{background:rgba(255,255,255,0.015)}
+  .book:hover::after{opacity:1}
+
+  .b1::after{color:#c0392b} .b2::after{color:#2a4a7a} .b3::after{color:#8b4513}
+  .b4::after{color:#1a6a5a} .b5::after{color:#2a3a7a} .b6::after{color:#5a3a2a}
+  .b7::after{color:#1a3060} .b8::after{color:#a08050}
+
   .book:nth-child(1){animation-delay:0.3s}.book:nth-child(2){animation-delay:0.42s}
   .book:nth-child(3){animation-delay:0.54s}.book:nth-child(4){animation-delay:0.66s}
   .book:nth-child(5){animation-delay:0.78s}.book:nth-child(6){animation-delay:0.90s}
@@ -101,50 +76,26 @@
   .b7 .book-num,.b7 .book-status{color:#1a3060} .b7 .book-status{border-color:#1a3060;background:rgba(26,48,96,0.05)}
   .b8 .book-num,.b8 .book-status{color:#a08050} .b8 .book-status{border-color:#a08050;background:rgba(160,128,80,0.05)}
 
-  .book-content{padding-right:24px}
+  .book-content{padding-right:48px}
 
-  .book-status{
-    font-family:'Cormorant Garamond',serif;font-size:0.58rem;
-    letter-spacing:0.28em;text-transform:uppercase;
-    margin-bottom:7px;display:inline-block;padding:2px 8px;border:1px solid;
-  }
+  .book-status{font-family:'Cormorant Garamond',serif;font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;margin-bottom:7px;display:inline-block;padding:2px 8px;border:1px solid}
 
-  .book-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:#c0d0e0;margin-bottom:4px;line-height:1.2}
+  .book-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:#c0d0e0;margin-bottom:4px;line-height:1.2;transition:color 0.2s}
+  .book:hover .book-title{color:#e0f0ff}
+
   .book-character{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.86rem;color:#2a3a50;margin-bottom:9px}
   .book-desc{font-size:0.96rem;line-height:1.72;color:#3a4a5a;font-weight:300;max-width:500px}
 
   .book-theme{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap}
   .theme-tag{font-family:'Cormorant Garamond',serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#2a3a50;border:1px solid #131c28;padding:2px 8px}
 
-  .book-answer{
-    min-width:170px;max-width:190px;padding-left:20px;
-    border-left:1px solid #0e1218;
-    font-family:'Cormorant Garamond',serif;font-style:italic;
-    font-size:0.86rem;line-height:1.7;color:#1e2a38;padding-top:4px;
-  }
+  .book-answer{min-width:170px;max-width:190px;padding-left:20px;border-left:1px solid #0e1218;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.86rem;line-height:1.7;color:#1e2a38;padding-top:4px}
   .answer-label{font-style:normal;font-size:0.56rem;letter-spacing:0.25em;text-transform:uppercase;color:#141c28;margin-bottom:6px;display:block}
 
-  /* SERIES CLOSE */
-  .series-close{
-    margin-top:64px;text-align:center;
-    font-family:'Cormorant Garamond',serif;font-style:italic;
-    font-size:1.08rem;color:#2a3040;line-height:2.1;
-    animation:rise 1s 1.3s ease forwards;opacity:0;
-    border-top:1px solid #0e1218;padding-top:48px;
-  }
+  .series-close{margin-top:64px;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.08rem;color:#2a3040;line-height:2.1;animation:rise 1s 1.3s ease forwards;opacity:0;border-top:1px solid #0e1218;padding-top:48px}
   .series-close strong{color:#a08050;font-weight:600;font-style:normal}
 
-  /* the word EXPOSURE in the corner — watermark */
-  .watermark{
-    position:fixed;bottom:-20px;right:-10px;
-    font-family:'Cormorant Garamond',serif;
-    font-size:12rem;font-weight:700;
-    color:rgba(160,130,80,0.025);
-    pointer-events:none;z-index:0;
-    letter-spacing:-0.05em;
-    line-height:1;
-    user-select:none;
-  }
+  .watermark{position:fixed;bottom:-20px;right:-10px;font-family:'Cormorant Garamond',serif;font-size:12rem;font-weight:700;color:rgba(160,130,80,0.025);pointer-events:none;z-index:0;letter-spacing:-0.05em;line-height:1;user-select:none}
 
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -157,13 +108,9 @@
 
   <div class="hero">
     <span class="series-label">A Complete Series in Eight Volumes</span>
-    <div class="title-lockup">
-      <h1>Exposure</h1>
-      <div class="title-sub">The Scalper Chronicles</div>
-    </div>
-    <div class="tagline">
-      One market. Eight books. Every kind of human it makes — and unmakes.
-    </div>
+    <h1>Exposure</h1>
+    <div class="title-sub">The Scalper Chronicles</div>
+    <div class="tagline">One market. Eight books. Every kind of human it makes — and unmakes.</div>
     <div class="definition">
       <div class="def-word">ex·po·sure /ikˈspōZHər/ n.</div>
       <div class="def-text">
@@ -184,7 +131,7 @@
 
   <div class="books">
 
-    <div class="book b1">
+    <a class="book b1" href="trench_warriors_with_narrator.html">
       <div class="book-num">I</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -194,9 +141,9 @@
         <div class="book-theme"><span class="theme-tag">War</span><span class="theme-tag">Brotherhood</span><span class="theme-tag">Discipline</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"Every morning I sit down and I am completely alive. I do not know another way. Yes."</div>
-    </div>
+    </a>
 
-    <div class="book b2">
+    <a class="book b2" href="the_erosion_book2.html">
       <div class="book-num">II</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -206,9 +153,9 @@
         <div class="book-theme"><span class="theme-tag">Solitude</span><span class="theme-tag">Identity</span><span class="theme-tag">Psychology</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"I lost myself for a while. I am finding my way back. I think yes. I think yes."</div>
-    </div>
+    </a>
 
-    <div class="book b3">
+    <a class="book b3" href="book3_the_comeback.html">
       <div class="book-num">III</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -218,9 +165,9 @@
         <div class="book-theme"><span class="theme-tag">Redemption</span><span class="theme-tag">Ego</span><span class="theme-tag">Rock Bottom</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"I would choose to be the person on the other side of having paid it. Yes."</div>
-    </div>
+    </a>
 
-    <div class="book b4">
+    <a class="book b4" href="book4_the_kid.html">
       <div class="book-num">IV</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -230,9 +177,9 @@
         <div class="book-theme"><span class="theme-tag">Youth</span><span class="theme-tag">Identity</span><span class="theme-tag">Growing Up</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"The market taught me precision. The world is teaching me to be human. Both. Yes."</div>
-    </div>
+    </a>
 
-    <div class="book b5">
+    <a class="book b5" href="book5_night_shift.html">
       <div class="book-num">V</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -242,9 +189,9 @@
         <div class="book-theme"><span class="theme-tag">Displacement</span><span class="theme-tag">Time</span><span class="theme-tag">Belonging</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"It is mine in a way nothing given to me could ever be. Yes. Without question."</div>
-    </div>
+    </a>
 
-    <div class="book b6">
+    <a class="book b6" href="book6_the_veteran.html">
       <div class="book-num">VI</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -254,9 +201,9 @@
         <div class="book-theme"><span class="theme-tag">Legacy</span><span class="theme-tag">Obsolescence</span><span class="theme-tag">Time</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"The ferry still crosses every morning and I am still on it. Is that not an answer."</div>
-    </div>
+    </a>
 
-    <div class="book b7">
+    <a class="book b7" href="book7_the_quant.html">
       <div class="book-num">VII</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -266,9 +213,9 @@
         <div class="book-theme"><span class="theme-tag">Control</span><span class="theme-tag">Hubris</span><span class="theme-tag">Consequence</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">Was it worth it?</span>"The price was one night in February. I know things I could not have been taught. Yes."</div>
-    </div>
+    </a>
 
-    <div class="book b8">
+    <a class="book b8" href="book8_the_last_trade.html">
       <div class="book-num">VIII</div>
       <div class="book-content">
         <span class="book-status">Complete</span>
@@ -278,7 +225,7 @@
         <div class="book-theme"><span class="theme-tag">Convergence</span><span class="theme-tag">Reckoning</span><span class="theme-tag">Meaning</span></div>
       </div>
       <div class="book-answer"><span class="answer-label">The market's verdict</span>"It did not grade the answers. It only recorded the trades."</div>
-    </div>
+    </a>
 
   </div>
 

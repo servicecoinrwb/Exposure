@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Serif+Text:ital@0;1&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#070a0f;
+    color:#a8b8c8;
+    font-family:'DM Serif Text',Georgia,serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .grain{
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;
+  }
+
+  /* cool blue-green — youth, screens, fluorescence */
+  .vignette{
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at 60% 30%, rgba(0,40,80,0.08) 0%, rgba(4,6,12,0.85) 100%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(7,10,15,0.97);
+    border-bottom:1px solid #0e1620;
+    padding:13px 24px;
+    display:flex;align-items:center;gap:16px;
+    backdrop-filter:blur(10px);
+  }
+  .play-btn{
+    width:42px;height:42px;border-radius:50%;
+    background:#1a6a5a;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background 0.2s,transform 0.15s;
+  }
+  .play-btn:hover{background:#228870;transform:scale(1.05)}
+  .play-btn svg{width:17px;height:17px;fill:#a0f0d8}
+  .narrator-info{flex:1;min-width:0}
+  .narrator-title{font-family:'DM Serif Display',serif;font-size:0.66rem;letter-spacing:0.28em;text-transform:uppercase;color:#1a6a5a;margin-bottom:2px}
+  .narrator-status{font-size:0.84rem;color:#1a3a30;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .narrator-status.speaking{color:#7abaa8}
+  .progress-bar{flex:1;height:2px;background:#0e1620;border-radius:2px;overflow:hidden;min-width:60px}
+  .progress-fill{height:100%;background:#1a6a5a;width:0%;transition:width 0.3s linear}
+  .speed-btn{background:none;border:1px solid #0e1620;color:#1a3a30;font-family:'DM Serif Text',serif;font-size:0.8rem;padding:4px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .speed-btn:hover{border-color:#1a6a5a;color:#1a6a5a}
+  .waveform{display:flex;align-items:center;gap:2px;height:20px}
+  .wave-bar{width:3px;background:#1a6a5a;border-radius:2px;height:4px}
+  .waveform.active .wave-bar:nth-child(1){animation:wave 0.9s 0.0s infinite}
+  .waveform.active .wave-bar:nth-child(2){animation:wave 0.9s 0.15s infinite}
+  .waveform.active .wave-bar:nth-child(3){animation:wave 0.9s 0.3s infinite}
+  .waveform.active .wave-bar:nth-child(4){animation:wave 0.9s 0.08s infinite}
+  .waveform.active .wave-bar:nth-child(5){animation:wave 0.9s 0.22s infinite}
+  @keyframes wave{0%,100%{height:4px}50%{height:17px}}
+
+  .container{max-width:760px;margin:0 auto;padding:80px 40px 140px;position:relative;z-index:1}
+
+  .series-eyebrow{font-family:'DM Serif Display',serif;font-size:0.66rem;letter-spacing:0.4em;text-transform:uppercase;color:#0e2a20;display:block;margin-bottom:18px;animation:rise 1s ease forwards;opacity:0}
+
+  .tag{display:inline-block;border:1px solid #0e1a14;color:#0e2a20;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;padding:3px 10px;margin-bottom:22px;font-family:'DM Serif Display',serif;animation:rise 1s 0.05s ease forwards;opacity:0}
+
+  h1{font-family:'DM Serif Display',serif;font-size:clamp(3.2rem,9vw,5.8rem);font-weight:400;color:#d0e8e0;line-height:0.95;letter-spacing:-0.02em;margin-bottom:10px;animation:rise 1.2s 0.1s ease forwards;opacity:0}
+
+  .subtitle{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.1rem;color:#1a4030;letter-spacing:0.05em;margin-bottom:44px;animation:rise 1.2s 0.2s ease forwards;opacity:0}
+
+  .epigraph{font-style:italic;color:#1a3028;font-size:0.97rem;line-height:1.9;border-left:2px solid #0e1a14;padding:4px 0 4px 22px;max-width:440px;margin:0 auto;animation:rise 1.4s 0.3s ease forwards;opacity:0}
+
+  .header-area{margin-bottom:80px;padding-bottom:56px;border-bottom:1px solid #0a1018}
+
+  .chapter-label{font-family:'DM Serif Display',serif;font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:#1a6a5a;margin-bottom:6px}
+
+  .chapter-heading{font-family:'DM Serif Display',serif;font-size:1.9rem;font-weight:400;color:#b8d8c8;margin-bottom:30px;line-height:1.2}
+
+  p{font-size:1.1rem;line-height:2.05;margin-bottom:24px;color:#6a8878;text-align:justify;hyphens:auto;font-weight:400;transition:background 0.4s}
+
+  .section>p:first-of-type::first-letter{
+    font-family:'DM Serif Display',serif;
+    font-size:4.8rem;font-weight:400;
+    color:#1a6a5a;
+    float:left;line-height:0.74;margin:10px 12px 0 0;
+  }
+
+  .reading-highlight{background:rgba(26,106,90,0.09);border-radius:3px;padding:2px 4px;margin:-2px -4px}
+
+  .pull-quote{
+    border-top:1px solid #0e1a18;border-bottom:1px solid #0e1a18;
+    padding:26px 0;margin:44px 0;
+    font-family:'DM Serif Display',serif;font-style:italic;
+    font-size:1.35rem;color:#4a9080;line-height:1.7;text-align:center;
+  }
+
+  .inner-thought{
+    background:rgba(255,255,255,0.01);
+    border-left:2px solid #0e1a18;
+    padding:16px 22px;margin:28px 0;
+    font-style:italic;font-size:1.0rem;
+    color:#1a3a30;line-height:1.9;
+    font-family:'DM Serif Display',serif;
+  }
+
+  /* chat log — feels like discord/slack, young person's medium */
+  .chat-log{
+    background:rgba(26,106,90,0.04);
+    border:1px solid #0e1a14;
+    border-left:3px solid #1a6a5a;
+    padding:20px 24px;margin:32px 0;
+    font-family:'Courier New',monospace;font-size:0.82rem;
+    color:#2a5040;line-height:2.2;
+  }
+  .chat-log .log-title{color:#1a6a5a;letter-spacing:0.15em;text-transform:uppercase;font-size:0.7rem;margin-bottom:8px}
+  .handle{color:#1a6a5a}
+  .handle-dim{color:#1a3028}
+  .profit{color:#3a8a60}
+  .loss{color:#8a3a3a}
+
+  .section{animation:rise 1s ease forwards;opacity:0}
+  .section:nth-child(1){animation-delay:0.4s}
+  .section:nth-child(2){animation-delay:0.55s}
+  .section:nth-child(3){animation-delay:0.7s}
+  .section:nth-child(4){animation-delay:0.85s}
+  .section:nth-child(5){animation-delay:1.0s}
+  .section:nth-child(6){animation-delay:1.15s}
+  .section:nth-child(7){animation-delay:1.3s}
+
+  .divider{display:flex;align-items:center;gap:18px;margin:52px 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#0e1a18,transparent)}
+  .divider-sym{color:#1a6a5a;font-size:0.9rem}
+
+  .end-mark{text-align:center;color:#0e1a18;font-size:1.8rem;margin-top:80px;letter-spacing:0.6em;font-family:'DM Serif Display',serif}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">Narrator</div>
+    <div class="narrator-status" id="narratorStatus">Press play to hear the story</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+
+  <div class="header-area">
+    <span class="series-eyebrow">The Scalper Chronicles — Book IV</span>
+    <div class="tag">Fiction · Youth · Identity · Growing Up</div>
+    <h1>The Kid</h1>
+    <div class="subtitle">A Story of the Boy Who Grew Up Inside the Market</div>
+    <div class="epigraph">
+      "He had never had to become anything<br>
+      other than what the screens made him.<br>
+      The question no one thought to ask —<br>
+      not him, not anyone who watched him win —<br>
+      was whether that was enough<br>
+      to make a life out of."
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter I</div>
+    <div class="chapter-heading">Room 214, Daley Hall</div>
+    <p id="p1">Jordan Tae was nineteen years old and three weeks into his sophomore year when he made his first trade from a dorm room in Columbus, Ohio. His roommate was asleep. The desk lamp was on. Outside the window the campus was doing what campuses do at 2 AM — cycling through its particular late-night routines, the distant music and the voices passing under the window and the specific silence of a hundred people being young in ways they would spend the rest of their lives trying to get back to. Jordan noticed none of it. He was watching a Level II quote screen on a laptop he had paid for himself, and he was about to click a button that would change the shape of the next several years of his life, though he could not have known that yet.</p>
+    <p id="p2">The trade made him forty-one dollars in eleven minutes. He stared at it. He pulled up a calculator and did the math he already knew how to do — annualized, compounded, extrapolated across a full trading year. The number the calculator returned was absurd. He knew it was absurd. He did the calculation again anyway, the way you reread a sentence that seems too good to be true, half hoping repetition will make it real.</p>
+    <div class="inner-thought" id="it1">Forty-one dollars. You understand this is nothing. You understand one trade proves absolutely nothing about anything. And yet. And yet there is something happening in your chest right now that feels like a door opening in a wall you didn't know was there.</div>
+    <p id="p3">He did not sleep that night. He read. Forum posts, YouTube videos, a trading book he found as a PDF that was dense and difficult and completely unlike anything his university had asked him to understand. He was used to school making things feel possible from a distance — here is the knowledge, here is what you do with it, here is the exam that will confirm you have it. Trading was different. Trading handed you the knowledge and the exam simultaneously and told you the cost of a wrong answer was your own money. He found this clarifying in a way that four semesters of coursework had not been.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◇</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter II</div>
+    <div class="chapter-heading">What He Skipped</div>
+    <p id="p4">By the time Jordan was twenty-one he was making more money than most people he knew would make for years. He had left school at the end of his junior year — not dramatically, not in crisis, just quietly, the way you stop doing something that no longer makes sense in the context of the thing that has replaced it. His parents had questions he answered honestly: he was profitable, consistently, across two full years of live trading, and the opportunity cost of finishing a degree he would not use had become something he could actually calculate. His father, an engineer, had appreciated the precision of this argument even as he disliked its conclusion.</p>
+    <p id="p5">What Jordan could not calculate — what nobody calculated for him, because nobody around him had the particular experience required to see it — was everything the leaving cost that wasn't on the spreadsheet. The internship he never had. The manager who would have told him he was wrong and been right about it. The colleague he would have disagreed with for six months and eventually understood. The experience of being a beginner at something, supervised, corrected, embedded in a structure that existed to develop him. He had never been a beginner at trading. He had simply been bad at it first and then less bad and then good, entirely alone, with no one to answer to but the market — which does not develop you, it only prices you.</p>
+    <div class="inner-thought" id="it2">You went from student to professional with nothing in between. No apprenticeship. No one who could say, you're doing that wrong, here's why, I've seen this before. The market can tell you you're wrong but it cannot tell you why in any language that helps you grow. You learned everything about trading and almost nothing about being taught.</div>
+  </div>
+
+  <div class="pull-quote" id="pq1">He was twenty-two years old and he had never been fired, never been managed, never had to show up somewhere he didn't want to be. He did not understand yet that this was not entirely a blessing.</div>
+
+  <div class="divider"><span class="divider-sym">◇</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter III</div>
+    <div class="chapter-heading">The Chat Room</div>
+    <p id="p6">He found the chat room in his second year and it became the closest thing he had to a workplace — a community of anonymous handles who appeared each morning at the open and dispersed each afternoon at the close. He was known there as Ghost, a name he had chosen because of how quietly he entered and exited positions. He did not tell them his age. He had learned early that youth was a credential that only worked against you in rooms where credibility was measured in scar tissue.</p>
+
+    <div class="chat-log" id="cl1">
+      <div class="log-title">// Chat Room — Tuesday, 9:47 AM</div>
+      <span class="handle">Ghost:</span> NQ breaking out of that compression. Watching 17,480.<br>
+      <span class="handle-dim">Zero-Dark:</span> already in. tight stop.<br>
+      <span class="handle-dim">Foxhole:</span> volume confirming. nice read Ghost.<br>
+      <span class="handle">Ghost:</span> <span class="profit">+14 ticks. out clean.</span><br>
+      <span class="handle-dim">Casket:</span> .<br>
+      <span class="handle-dim">Zero-Dark:</span> how old are you Ghost. seriously.<br>
+      <span class="handle">Ghost:</span> old enough.<br>
+      <span class="handle-dim">Zero-Dark:</span> that's a kid answer lmao<br>
+      <span class="handle">Ghost:</span> 🙂
+    </div>
+
+    <p id="p7">He liked the room because in the room he was only his trades. Not his age, not his background, not the degree he hadn't finished or the jobs he'd never had. Just the read and the entry and the exit and the result. It was the purest form of meritocracy he had ever encountered, and he loved it with the uncomplicated devotion of someone who has never had to survive a meritocracy that ruled against them. He would learn, slowly, that this was its own kind of privilege — and that privilege, like most things, only becomes visible the moment it is taken away.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◇</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter IV</div>
+    <div class="chapter-heading">The Question No One Asked</div>
+    <p id="p8">His college friends — the ones he still occasionally saw — had entered the part of their lives that felt like assembly. Graduate programs. Entry-level positions. First apartments with bad lighting and good stories. First bosses. First real failures in systems built by other people, which is its own kind of education that Jordan had no equivalent for. They complained about these things and he listened and felt a sympathy he could not entirely access because he had no reference for what they were describing from the inside.</p>
+    <p id="p9">What he did not say — what he was only beginning to understand how to say, alone at his desk in the apartment he had rented with trading profits at twenty-one — was that he had his own version of the same feeling. A formlessness. The market gave him everything: income, purpose, structure, the daily satisfaction of a problem solved. What it did not give him was the thing his friends were stumbling toward in their overcrowded graduate apartments — some sense of what they were becoming, separate from what they were doing. They had the scaffolding even when it chafed. Jordan had the freedom, and the freedom was real, and sometimes in the long afternoons after the market closed he felt it as a kind of weightlessness that was very close to being lost.</p>
+    <div class="inner-thought" id="it3">Who are you when the screens are off. Not what do you do — you know what you do. Who are you. What do you want that trading cannot give you. What kind of person are you building inside all this solitude and all this winning. Do you even know. Has anyone ever asked you. Have you ever asked yourself.</div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◇</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter V</div>
+    <div class="chapter-heading">The Loss That Taught Him Something Different</div>
+    <p id="p10">At twenty-two he had his first serious drawdown. Not catastrophic — he had risk management that was better than most traders twice his age, built from reading and from the natural caution of someone who had never had a safety net. But serious enough. Three weeks of losses that reversed six weeks of gains, driven not by bad reads but by something more interior and harder to chart — a flatness, a going-through-the-motions quality in his trading that he had never experienced before and did not have a name for.</p>
+    <p id="p11">He went to see his parents for a weekend. This was unusual — he saw them at holidays, dutifully, with the slight remove of a person whose life has diverged far enough from the people he came from that closeness requires deliberate effort. His mother made the food he had grown up with and asked him the questions she always asked and he answered them honestly in the ways he could. On Sunday morning his father found him on the back porch at six AM, before the house woke up, just sitting.</p>
+    <p id="p12">His father sat down next to him and they were quiet for a while in the way that fathers and sons can be quiet together when they have accepted the distance between them without making it a wound. Then his father said: you look tired in a way that sleep won't fix. Jordan said: yeah. His father said nothing else. He just sat there. And Jordan, for reasons he couldn't entirely explain, began to talk — not about trades, not about the drawdown, but about the thing underneath it, the formlessness, the question he had been circling for months without landing. He talked for a long time. His father listened in a way that Jordan had not known he needed until it was happening.</p>
+    <div class="inner-thought" id="it4">This is what you were missing. Not a mentor in a chat room. Not a trading psychologist. Your father, sitting next to you in the early morning, not trying to fix it, just — there. You forgot that people could just be there. You have been alone so long inside this thing that you forgot what it felt like to be witnessed by someone who loves you and doesn't need you to be profitable.</div>
+  </div>
+
+  <div class="pull-quote" id="pq2">The market had made him precise and quick and resilient in the ways it could make a person. What it could not make him was known. That required something older than any algorithm — it required people, and time, and the willingness to be seen losing without making it mean too much.</div>
+
+  <div class="divider"><span class="divider-sym">◇</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VI</div>
+    <div class="chapter-heading">What He Started Doing Differently</div>
+    <p id="p13">He started leaving the apartment. This sounds small and is not small. He started going to a coffee shop in the morning before the pre-market opened — not to trade, just to be somewhere that other people also were. He started calling his mother on Tuesdays for no reason. He started saying yes to the things his remaining college friends invited him to, the dinners and the small parties and the Sunday afternoon things that had no economic value and no measurable return.</p>
+    <p id="p14">He did not stop trading. He did not become a different person. But he started to understand — slowly, clumsily, in the way you understand things you have no instruction manual for — that trading was something he did, and it was not the same as something he was. The distinction felt obvious when he finally saw it, the way all true things feel obvious on the other side of not knowing them. He had needed three years and a bad month and a Sunday morning on his parents' porch to arrive at something his friends had learned through the ordinary friction of their ordinary lives. He was not sure who had paid the higher price.</p>
+    <p id="p15">In the chat room he was still Ghost. Still quiet, still clean, still reading the tape with the accuracy that had made him a name worth knowing in that small world. But something in the quality of his silences had changed. Where before the silence had been the absence of anything outside the trade, now it contained something. Experience, maybe. Or just the first early evidence of a self that existed past 4 PM, that had people in it, that was slowly, imperfectly, learning to be more than the sum of its winning days.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◇</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VII</div>
+    <div class="chapter-heading">Twenty-Three</div>
+    <p id="p16">On his twenty-third birthday he went to dinner with six people — his parents, his sister, two friends from college, and a woman named Yuna he had met at the coffee shop who asked what he did for a living and listened to the answer without the usual mix of fascination and skepticism, and simply said: that sounds lonely sometimes. He had stared at her for a moment. Nobody had ever led with that. Everyone led with the money or the freedom or the risk. She had led with the loneliness, and she had been right, and he found he had nothing to say except: yeah. Sometimes.</p>
+    <p id="p17">After dinner he walked home through the city, which was cool and lit and full of the noise of other people living their lives in the particular adjacency that cities provide. He thought about what Yuna had said. He thought about the dorm room and the laptop and the forty-one dollars and the door opening in the wall. He thought about everything the market had given him and everything it had quietly taken — the years of ordinary friction, the supervised failures, the becoming that happens when you are embedded in something larger than yourself and have to find your place inside it.</p>
+    <p id="p18">He did not regret the path. He was twenty-three and the path had given him things most people would spend their whole careers chasing. But he was beginning to understand that a path walked only for its destination misses everything on either side of it. And he was young enough — just barely — that there was still time to look up. To look around. To let the world outside the market be as real as the world inside it.</p>
+    <p id="p19">Tomorrow the market would open at 9:30. He would be at his desk at 9:15, coffee cooling beside the keyboard, watching the futures with the calm of someone who has done this long enough to know that most of what looks like urgency is noise. He would trade well. He was very good at this. But tonight he walked slowly, through the lit city, not watching anything in particular, just present — which was, for Jordan Tae, a new and necessary kind of practice.</p>
+  </div>
+
+  <div class="end-mark">◇ ◇ ◇</div>
+
+</div>
+
+<script>
+  const paragraphIds=['p1','p2','it1','p3','p4','p5','it2','pq1','p6','cl1','p7','p8','p9','it3','p10','p11','p12','it4','pq2','p13','p14','p15','p16','p17','p18','p19'];
+  const chapterLabels={p1:'Chapter I — Room 214, Daley Hall',p4:'Chapter II — What He Skipped',p6:'Chapter III — The Chat Room',p8:'Chapter IV — The Question No One Asked',p10:'Chapter V — The Loss That Taught Him Something Different',p13:'Chapter VI — What He Started Doing Differently',p16:'Chapter VII — Twenty-Three'};
+
+  let speaking=false,paused=false,currentIndex=0;
+  let speeds=[0.85,1,1.15,1.3],speedIndex=1;
+  const synth=window.speechSynthesis;
+
+  function getVoice(){
+    const v=synth.getVoices();
+    return v.find(x=>(x.name.includes('Daniel')||x.name.includes('Alex')||x.name.includes('Google UK English Male'))&&x.lang.startsWith('en'))
+      ||v.find(x=>x.lang.startsWith('en-'))||v[0];
+  }
+
+  function updateIcon(p){document.getElementById('playIcon').innerHTML=p?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
+  function clearHL(){document.querySelectorAll('.reading-highlight').forEach(el=>el.classList.remove('reading-highlight'));}
+  function highlight(id){clearHL();const el=document.getElementById(id);if(el){el.classList.add('reading-highlight');el.scrollIntoView({behavior:'smooth',block:'center'});}}
+
+  function speakFrom(index){
+    synth.cancel();currentIndex=index;
+    function next(){
+      if(currentIndex>=paragraphIds.length){
+        speaking=false;paused=false;updateIcon(false);clearHL();
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('narratorStatus').textContent='Finished — press play to restart';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('progressFill').style.width='100%';
+        return;
+      }
+      const id=paragraphIds[currentIndex];
+      const el=document.getElementById(id);
+      if(!el){currentIndex++;next();return;}
+      const text=el.innerText.replace(/[◇—]/g,'').trim();
+      if(!text){currentIndex++;next();return;}
+      highlight(id);
+      const label=chapterLabels[id];
+      if(label){document.getElementById('narratorStatus').textContent=label;document.getElementById('narratorStatus').classList.add('speaking');}
+      document.getElementById('progressFill').style.width=((currentIndex/paragraphIds.length)*100)+'%';
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=getVoice();u.rate=speeds[speedIndex];u.pitch=0.9;u.volume=1;
+      u.onend=()=>{if(!speaking)return;currentIndex++;next();};
+      u.onerror=()=>{currentIndex++;next();};
+      synth.speak(u);
+    }
+    next();
+  }
+
+  function toggleNarrator(){
+    if(!speaking&&!paused){
+      speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      if(synth.getVoices().length===0){synth.onvoiceschanged=()=>speakFrom(currentIndex);}
+      else speakFrom(currentIndex);
+    }else if(speaking&&!paused){
+      synth.pause();paused=true;speaking=false;updateIcon(false);
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent='Paused — press play to continue';
+    }else if(paused){
+      synth.resume();paused=false;speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed(){
+    speedIndex=(speedIndex+1)%speeds.length;
+    document.getElementById('speedBtn').textContent=['0.85×','1×','1.15×','1.3×'][speedIndex];
+    if(speaking){synth.cancel();speakFrom(currentIndex);}
+  }
+
+  if(typeof speechSynthesis!=='undefined'){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+</script>
+</body>
+</html>

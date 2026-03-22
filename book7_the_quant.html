@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#060709;
+    color:#8a9aaa;
+    font-family:'Syne',Georgia,sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .grain{
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;
+  }
+
+  .vignette{
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at 55% 25%, rgba(10,20,40,0.15) 0%, rgba(4,5,8,0.92) 100%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(6,7,9,0.97);
+    border-bottom:1px solid #0d1220;
+    padding:13px 24px;
+    display:flex;align-items:center;gap:16px;
+    backdrop-filter:blur(10px);
+  }
+  .play-btn{
+    width:42px;height:42px;border-radius:4px;
+    background:#1a3060;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background 0.2s,transform 0.15s;
+  }
+  .play-btn:hover{background:#2a4888;transform:scale(1.05)}
+  .play-btn svg{width:17px;height:17px;fill:#80b0f0}
+  .narrator-info{flex:1;min-width:0}
+  .narrator-title{font-family:'Syne Mono',monospace;font-size:0.64rem;letter-spacing:0.22em;text-transform:uppercase;color:#1a3060;margin-bottom:2px}
+  .narrator-status{font-size:0.82rem;color:#0e1828;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Syne Mono',monospace}
+  .narrator-status.speaking{color:#5a80b0}
+  .progress-bar{flex:1;height:2px;background:#0d1220;border-radius:2px;overflow:hidden;min-width:60px}
+  .progress-fill{height:100%;background:#1a3060;width:0%;transition:width 0.3s linear}
+  .speed-btn{background:none;border:1px solid #0d1220;color:#1a2838;font-family:'Syne Mono',monospace;font-size:0.78rem;padding:4px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .speed-btn:hover{border-color:#1a3060;color:#1a3060}
+  .waveform{display:flex;align-items:center;gap:2px;height:20px}
+  .wave-bar{width:3px;background:#1a3060;border-radius:1px;height:4px}
+  .waveform.active .wave-bar:nth-child(1){animation:wave 0.8s 0.0s infinite}
+  .waveform.active .wave-bar:nth-child(2){animation:wave 0.8s 0.16s infinite}
+  .waveform.active .wave-bar:nth-child(3){animation:wave 0.8s 0.32s infinite}
+  .waveform.active .wave-bar:nth-child(4){animation:wave 0.8s 0.08s infinite}
+  .waveform.active .wave-bar:nth-child(5){animation:wave 0.8s 0.24s infinite}
+  @keyframes wave{0%,100%{height:4px}50%{height:17px}}
+
+  .container{max-width:760px;margin:0 auto;padding:80px 40px 140px;position:relative;z-index:1}
+
+  .series-eyebrow{font-family:'Syne Mono',monospace;font-size:0.64rem;letter-spacing:0.3em;text-transform:uppercase;color:#0e1828;display:block;margin-bottom:18px;animation:rise 1s ease forwards;opacity:0}
+
+  .tag{display:inline-block;border:1px solid #0d1220;color:#0e1828;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;padding:3px 10px;margin-bottom:22px;font-family:'Syne Mono',monospace;animation:rise 1s 0.05s ease forwards;opacity:0}
+
+  h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,8vw,5.4rem);font-weight:800;color:#c0d8f8;line-height:0.95;letter-spacing:-0.03em;margin-bottom:10px;animation:rise 1.2s 0.1s ease forwards;opacity:0}
+
+  .subtitle{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:400;color:#1a2a48;letter-spacing:0.02em;margin-bottom:44px;animation:rise 1.2s 0.2s ease forwards;opacity:0}
+
+  .epigraph{font-style:italic;color:#1a2030;font-size:0.95rem;line-height:1.9;border-left:2px solid #0d1220;padding:4px 0 4px 22px;max-width:440px;margin:0 auto;animation:rise 1.4s 0.3s ease forwards;opacity:0;font-family:'Syne',sans-serif;font-weight:400}
+
+  .header-area{margin-bottom:80px;padding-bottom:56px;border-bottom:1px solid #0a0c12}
+
+  .chapter-label{font-family:'Syne Mono',monospace;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:#1a3060;margin-bottom:6px}
+
+  .chapter-heading{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:#90b8e8;margin-bottom:30px;line-height:1.2}
+
+  p{font-size:1.08rem;line-height:2.0;margin-bottom:24px;color:#4a5a70;text-align:justify;hyphens:auto;font-weight:400;transition:background 0.4s;font-family:'Syne',sans-serif}
+
+  .section>p:first-of-type::first-letter{
+    font-family:'Syne',sans-serif;
+    font-size:4.6rem;font-weight:800;
+    color:#1a3060;
+    float:left;line-height:0.76;margin:10px 12px 0 0;
+  }
+
+  .reading-highlight{background:rgba(26,48,96,0.12);border-radius:2px;padding:2px 4px;margin:-2px -4px}
+
+  .pull-quote{
+    border-top:1px solid #0d1220;border-bottom:1px solid #0d1220;
+    padding:24px 0;margin:44px 0;
+    font-family:'Syne',sans-serif;font-weight:600;
+    font-size:1.2rem;color:#3a5888;line-height:1.65;text-align:center;
+  }
+
+  .inner-thought{
+    background:rgba(255,255,255,0.01);
+    border-left:2px solid #0d1220;
+    padding:16px 22px;margin:28px 0;
+    font-style:italic;font-size:0.98rem;
+    color:#1a2030;line-height:1.9;
+    font-family:'Syne',sans-serif;font-weight:400;
+  }
+
+  /* CODE BLOCK — the defining visual of this book */
+  .code-block{
+    background:#040508;
+    border:1px solid #0d1220;
+    border-left:3px solid #1a3060;
+    padding:22px 26px;margin:32px 0;
+    font-family:'Syne Mono',monospace;font-size:0.8rem;
+    color:#2a4060;line-height:2.1;
+    overflow-x:auto;
+  }
+  .code-block .cb-title{color:#1a3060;letter-spacing:0.15em;text-transform:uppercase;font-size:0.68rem;margin-bottom:12px;border-bottom:1px solid #0d1220;padding-bottom:8px}
+  .code-kw{color:#3a6aaa}
+  .code-fn{color:#5a8ad0}
+  .code-str{color:#3a6a4a}
+  .code-num{color:#8a5a30}
+  .code-comment{color:#1a2838;font-style:italic}
+  .code-err{color:#aa3a2a}
+  .code-warn{color:#aa7a2a}
+
+  .section{animation:rise 1s ease forwards;opacity:0}
+  .section:nth-child(1){animation-delay:0.4s}
+  .section:nth-child(2){animation-delay:0.55s}
+  .section:nth-child(3){animation-delay:0.7s}
+  .section:nth-child(4){animation-delay:0.85s}
+  .section:nth-child(5){animation-delay:1.0s}
+  .section:nth-child(6){animation-delay:1.15s}
+  .section:nth-child(7){animation-delay:1.3s}
+
+  .divider{display:flex;align-items:center;gap:18px;margin:52px 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#0d1220,transparent)}
+  .divider-sym{color:#1a3060;font-size:0.85rem;font-family:'Syne Mono',monospace}
+
+  .end-mark{text-align:center;color:#0d1220;font-size:1.6rem;margin-top:80px;letter-spacing:0.4em;font-family:'Syne Mono',monospace}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">// narrator.init()</div>
+    <div class="narrator-status" id="narratorStatus">press play to begin</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+
+  <div class="header-area">
+    <span class="series-eyebrow">// scalper_chronicles_book_07.txt</span>
+    <div class="tag">Fiction · Control · Hubris · Consequence</div>
+    <h1>The<br>Quant</h1>
+    <div class="subtitle">A Story of the Woman Who Built the Machine — and What Happened When It Ran Without Her</div>
+    <div class="epigraph">
+      "She had never once felt the fear<br>
+      of a live position. She had built<br>
+      systems that removed the human<br>
+      from the equation entirely.<br>
+      The human, it turned out,<br>
+      had not been removed.<br>
+      Only hidden."
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_01</div>
+    <div class="chapter-heading">The Architecture of Control</div>
+    <p id="p1">Elena Vasquez did not trade. This was the first thing she said when people at parties asked what she did — I don't trade, I build the systems that trade — and she said it with a precision that was not modesty but taxonomy. The distinction mattered to her the way all clean distinctions mattered to her, which was deeply, structurally, in the way that a person who has built their entire professional identity around the elimination of ambiguity tends to care about the difference between things that look similar but are not. She was a quantitative researcher at a proprietary trading firm in New York. She had a doctorate in applied mathematics from MIT. She had published four papers in the previous six years that had been cited enough times to make her name recognizable in a field where names were not usually recognized. She was thirty-six years old and she had never once sat in front of a live position with her own money on the line and felt the specific quality of fear that comes with that exposure. She believed this made her better at her job. She was right about this, and wrong about it, in ways she would not fully understand until a Tuesday night in February.</p>
+    <p id="p2">Her models were elegant. This was not vanity — elegance in a model was a functional quality, not an aesthetic one. An elegant model was a parsimonious one: it used the minimum number of assumptions necessary to explain the maximum amount of observed behavior, which meant it was less likely to overfit the past and more likely to survive the future. She had built four live models in her six years at the firm, each one cleaner than the last, each one a refinement of the previous generation's mistakes. The current model — internally designated LARK-4 — had been running live for eight months with a Sharpe ratio that made her colleagues say things she accepted without expression but registered with quiet satisfaction, because she had built it and it worked and working was what it was supposed to do.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">{ }</span></div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_02</div>
+    <div class="chapter-heading">What She Thought Risk Was</div>
+    <p id="p3">Risk, to Elena, was a parameter. It lived in her models as a number, usually a volatility estimate or a value-at-risk figure, carefully calibrated, regularly updated, embedded in the system's position-sizing logic so that LARK-4 would automatically reduce exposure as uncertainty rose and increase it as conditions stabilized. The risk was managed. That was the phrase she used in presentations — the risk is managed — and she meant it technically, precisely, the way an engineer means that a load is distributed. Not that risk had been eliminated. That it had been accounted for, measured, and placed in a structure designed to contain it.</p>
+    <p id="p4">What she had never fully reckoned with — what her models could not account for because her models were built from historical data and the thing she had not yet encountered had no history — was the risk that lived inside the code itself. Not market risk. Model risk. The possibility that the logic she had constructed with such care contained an error so subtle it would not manifest under normal conditions, would pass every backtest, every validation, every peer review, and would lie dormant in the system the way a hairline fracture lies dormant in a structure that has not yet been tested by the right kind of stress.</p>
+    <div class="inner-thought" id="it1">You have been so careful. You know what careful looks like — the commit history, the unit tests, the out-of-sample validation, the six months of paper trading before you went live. You did everything right. You know you did everything right. And yet there is a thing in mathematics that your models account for in theory and that you have not yet encountered in practice, which is the humility of not knowing what you do not know. That is not a solvable problem. That is a condition of the work.</div>
+  </div>
+
+  <div class="pull-quote" id="pq1">She had built a system to remove human error from trading. What she had actually built was a system to transform human error into something faster, larger, and considerably harder to stop.</div>
+
+  <div class="divider"><span class="divider-sym">{ }</span></div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_03</div>
+    <div class="chapter-heading">Tuesday, 11:47 PM — The Deploy</div>
+    <p id="p5">She deployed the LARK-4 update on a Tuesday night. This was not unusual — she often pushed updates in the overnight window when markets were closed and the system could be restarted cleanly without interrupting live operations. The update was minor: a recalibration of the volatility estimation routine, incorporating three additional months of data and a small adjustment to the decay parameter that she had been thinking about for six weeks. She ran it through the test suite. Everything passed. She deployed it at 11:47 PM, noted it in the deployment log, and went to bed at 12:15 AM with the particular satisfaction of work completed on schedule.</p>
+
+    <div class="code-block" id="cb1">
+      <div class="cb-title">// deployment_log — LARK-4 v4.2.1 — Tuesday 23:47:03</div>
+      <span class="code-kw">STATUS</span>: deploy initiated<br>
+      <span class="code-kw">TESTS</span>: <span class="code-str">847/847 passed</span> &nbsp;<span class="code-comment">// all clear</span><br>
+      <span class="code-kw">BACKTEST</span>: <span class="code-str">36-month Sharpe 2.34</span> &nbsp;<span class="code-comment">// nominal</span><br>
+      <span class="code-kw">CHANGE</span>: vol_decay_param <span class="code-num">0.94</span> → <span class="code-num">0.91</span><br>
+      <span class="code-kw">STATUS</span>: deploy complete. system live at <span class="code-num">23:47:58</span><br>
+      <span class="code-comment">// Elena logs off. Everything looks fine.</span><br>
+      <span class="code-comment">// Everything is not fine.</span>
+    </div>
+
+    <p id="p6">The bug was in the interaction. This was the nature of the most dangerous bugs — they did not live in a single line of code but in the relationship between two lines that were each individually correct and collectively catastrophic. The recalibrated decay parameter, fed into the volatility estimator, produced estimates that were accurate under normal conditions and systematically underestimated volatility during the specific type of low-liquidity overnight session that Tokyo sometimes produced in February. Under those conditions, LARK-4's position sizing logic — which used the volatility estimate to calibrate exposure — would read a quiet market as a safe market and build positions that were three to four times larger than Elena had ever intended the system to carry overnight.</p>
+    <p id="p7">Tokyo opened at 1 AM New York time. The session was quiet. LARK-4 read quiet as safe. It began to build.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">{ }</span></div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_04</div>
+    <div class="chapter-heading">4:47 AM — The Alert</div>
+    <p id="p8">Her phone went off at 4:47 AM. Not the gentle alarm she used to wake up — the other sound, the one she had assigned to the risk monitoring system, which she had configured to alert her only if exposure breached two hundred percent of the daily limit. She had set that threshold because she had believed, with the confidence of someone who had never needed to test the belief, that it was a threshold LARK-4 could not reach under any conditions she had anticipated. She had anticipated many conditions. She had not anticipated this one.</p>
+    <p id="p9">She was at her laptop in forty seconds. The screen showed her what the system had been doing for the past three hours and seventeen minutes while she had been asleep with the particular soundness of someone whose models were working correctly. LARK-4 had built a position across four instruments that was, at current mark-to-market, carrying an unrealized loss she stared at for four seconds before her hands began to move.</p>
+
+    <div class="code-block" id="cb2">
+      <div class="cb-title">// risk_monitor_alert — 04:47:11 EST</div>
+      <span class="code-err">CRITICAL: exposure_limit_breach</span><br>
+      <span class="code-kw">CURRENT_EXPOSURE</span>: <span class="code-err">347% of daily limit</span><br>
+      <span class="code-kw">POSITIONS</span>: 4 instruments, 6 legs<br>
+      <span class="code-kw">UNREALIZED_PNL</span>: <span class="code-err">-$284,447.82</span><br>
+      <span class="code-kw">CAUSE</span>: <span class="code-warn">investigating...</span><br>
+      <span class="code-kw">MODEL_STATUS</span>: <span class="code-warn">running — no internal errors detected</span><br>
+      <span class="code-comment">// The model doesn't know it's wrong.</span><br>
+      <span class="code-comment">// That is the problem.</span>
+    </div>
+
+    <p id="p10">She killed the model first. Before she touched a single position she killed LARK-4 — halted execution, severed the API connections, made the system incapable of building further exposure while she assessed what it had already done. This took eleven seconds. Then she sat in the dark of her apartment at 4:47 AM looking at six positions she had not placed and did not fully understand and which were losing money in real time, and she felt something she had spent six years and a great deal of mathematical ingenuity arranging never to feel.</p>
+    <p id="p11">She felt it in her stomach first. Then in her hands, which were not entirely steady on the keyboard. Then in some region of her chest she did not have a precise anatomical term for but which was unmistakably present, unmistakably physical, and unmistakably the thing that Danny Reyes felt every morning at the open and that Marcus Webb had felt through the eighteen days and that every human being who has ever had their own money genuinely at risk has felt and which no model she had ever built had ever had to reckon with because models do not have chests and models do not wake at 4:47 AM in an apartment in lower Manhattan with the cold realization that the elegant thing they built has been quietly catastrophic for three hours and seventeen minutes.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">{ }</span></div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_05</div>
+    <div class="chapter-heading">The Unwinding</div>
+    <p id="p12">She unwound the positions herself. Manually, one by one, over the next ninety minutes, working through the Tokyo session with the careful deliberateness of a person defusing something. She had never done this before — she had always been on the architecture side, the side that built and tested and monitored, never the side that executed. She discovered that execution under pressure was a different skill entirely from the skills she had spent a decade building. Her hands knew the keyboard but not this keyboard. She was competent and she was slow and the positions moved against her twice while she was working and she absorbed that without stopping because stopping was not an option and because she understood, for the first time in her professional life, that the market did not care that she was the one who had built the system that had built the mess. It only priced the mess.</p>
+    <p id="p13">By 6:20 AM she had closed everything. The total realized loss was less than the unrealized peak — she had been lucky in the unwinding, or skilled, or some combination of both that she could not yet decompose. She sat back. The screens were quiet. Tokyo was finishing its session and London was opening and the world of markets was continuing with the indifference that markets have always had toward any individual participant's catastrophe. She made coffee. She sat at her kitchen table and looked at the wall and felt the thing drain out of her slowly, leaving behind something that was not peace but was at least stillness.</p>
+    <div class="inner-thought" id="it2">You built a system to eliminate the human element. The human element was the fear, the hesitation, the emotion that corrupts decision-making under pressure. You were right that those things corrupt decision-making. What you did not account for was that they are also the things that make a person pay attention in ways a model cannot. The fear is information. The fear is the thing that woke you at 4:47 AM and put your hands on the keyboard. A model has no fear. A model would have kept building until there was nothing left to build.</div>
+  </div>
+
+  <div class="pull-quote" id="pq2">The human element she had tried to engineer out of the system turned out to be the thing that saved it. She filed this finding carefully, in a part of herself that pure mathematics had never reached, and did not yet know what to do with it.</div>
+
+  <div class="divider"><span class="divider-sym">{ }</span></div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_06</div>
+    <div class="chapter-heading">What She Rebuilt</div>
+    <p id="p14">She found the bug by 9 AM. Two lines of code. The interaction between the decay parameter and the volatility estimator under low-liquidity conditions, exactly as she later reconstructed it — a thing that was invisible in backtests because the backtests used tick data that smoothed out the specific texture of a quiet Tokyo February session in a way that live markets did not. She fixed it in four minutes. She tested it for eleven days before she touched the deployment again. She added six new monitoring checks, three new kill switches, and a completely new class of alert that she called the human override — a set of conditions under which the system would pause all activity and require a human to explicitly authorize resumption. She had never believed such a switch was necessary. Now she built it into everything.</p>
+    <p id="p15">She also changed something that did not appear in any commit message or deployment log — something internal, harder to version-control. She started reading. Not research papers, not technical documentation — she started reading the things traders wrote about the experience of trading. The psychology books, the memoirs, the forum posts where people described what it felt like to be wrong in real time with real consequences. She read them the way she had once read mathematics: with total attention, looking for the structure underneath, trying to understand the system. What she found was not a system. What she found was testimony — the record of people who had felt the thing she had felt at 4:47 AM and had built their entire professional lives around surviving it. She found she had more respect for them than she had previously thought to have.</p>
+    <p id="p16">LARK-5 went live four months later. It was better than LARK-4 in every measurable way and in one way that resisted measurement entirely — it had been built by someone who now understood, in her body rather than in her models, what it felt like when the thing you built ran without you into the dark and came back changed. That understanding did not appear in the code. It appeared in the architecture of the kill switches, in the conservatism of the position limits, in the six additional monitoring layers that her colleagues said were probably excessive and that she kept anyway, because she alone knew what they were actually for.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">{ }</span></div>
+
+  <div class="section">
+    <div class="chapter-label">// chapter_07</div>
+    <div class="chapter-heading">The Thing She Learned That Couldn't Be Modeled</div>
+    <p id="p17">At a conference in the fall she gave a talk on model risk. It was a technical talk — she was not given to the confessional register, and this was a room of mathematicians and engineers who shared her allergy to the imprecise. But at the end of the prepared portion, in the Q and A, someone asked her what she thought was the biggest underrated risk in systematic trading and she paused for longer than she usually paused before she said: the assumption that you have thought of everything.</p>
+    <p id="p18">The room was quiet for a moment. Someone in the back laughed, the laugh of recognition. She continued: every model is a map. Maps are useful. Maps are not the territory. The territory contains things that are not on the map, and the most dangerous of those things are the ones that look, from a distance, exactly like things that are. She paused again. She almost said more. She decided the room had enough.</p>
+    <p id="p19">Walking back to her hotel she thought about the six positions at 4:47 AM. She thought about her hands on the keyboard, not entirely steady. She thought about the feeling in her chest, which she now had a better word for — not fear, exactly. Exposure. The feeling of being exposed to something real, something that did not care about her models or her Sharpe ratio or her four published papers, something that priced her the same way it priced everyone: without preference, without history, without mercy. She had spent six years building a wall between herself and that feeling. One Tuesday night in February the wall had come down. She was, she realized, walking back to her hotel in the cool October evening, a better researcher for it. She was not sure she was a happier person for it. She suspected those were different questions, and that the difference between them was something no model would ever fully close.</p>
+  </div>
+
+  <div class="end-mark">// EOF</div>
+
+</div>
+
+<script>
+  const paragraphIds=['p1','p2','p3','p4','it1','pq1','p5','cb1','p6','p7','p8','p9','cb2','p10','p11','p12','p13','it2','pq2','p14','p15','p16','p17','p18','p19'];
+  const chapterLabels={p1:'Chapter 01 — The Architecture of Control',p3:'Chapter 02 — What She Thought Risk Was',p5:'Chapter 03 — Tuesday 11:47 PM',p8:'Chapter 04 — 4:47 AM The Alert',p12:'Chapter 05 — The Unwinding',p14:'Chapter 06 — What She Rebuilt',p17:'Chapter 07 — The Thing That Couldn\'t Be Modeled'};
+
+  let speaking=false,paused=false,currentIndex=0;
+  let speeds=[0.85,1,1.15,1.3],speedIndex=1;
+  const synth=window.speechSynthesis;
+
+  function getVoice(){
+    const v=synth.getVoices();
+    return v.find(x=>(x.name.includes('Samantha')||x.name.includes('Karen')||x.name.includes('Google UK English Female')||x.name.includes('Victoria'))&&x.lang.startsWith('en'))
+      ||v.find(x=>x.lang.startsWith('en-'))||v[0];
+  }
+
+  function updateIcon(p){document.getElementById('playIcon').innerHTML=p?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
+  function clearHL(){document.querySelectorAll('.reading-highlight').forEach(el=>el.classList.remove('reading-highlight'));}
+  function highlight(id){clearHL();const el=document.getElementById(id);if(el){el.classList.add('reading-highlight');el.scrollIntoView({behavior:'smooth',block:'center'});}}
+
+  function speakFrom(index){
+    synth.cancel();currentIndex=index;
+    function next(){
+      if(currentIndex>=paragraphIds.length){
+        speaking=false;paused=false;updateIcon(false);clearHL();
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('narratorStatus').textContent='// execution complete';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('progressFill').style.width='100%';
+        return;
+      }
+      const id=paragraphIds[currentIndex];
+      const el=document.getElementById(id);
+      if(!el){currentIndex++;next();return;}
+      const text=el.innerText.replace(/[{}\/\/—]/g,' ').trim();
+      if(!text){currentIndex++;next();return;}
+      highlight(id);
+      const label=chapterLabels[id];
+      if(label){document.getElementById('narratorStatus').textContent='// '+label;document.getElementById('narratorStatus').classList.add('speaking');}
+      document.getElementById('progressFill').style.width=((currentIndex/paragraphIds.length)*100)+'%';
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=getVoice();u.rate=speeds[speedIndex];u.pitch=0.95;u.volume=1;
+      u.onend=()=>{if(!speaking)return;currentIndex++;next();};
+      u.onerror=()=>{currentIndex++;next();};
+      synth.speak(u);
+    }
+    next();
+  }
+
+  function toggleNarrator(){
+    if(!speaking&&!paused){
+      speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      if(synth.getVoices().length===0){synth.onvoiceschanged=()=>speakFrom(currentIndex);}
+      else speakFrom(currentIndex);
+    }else if(speaking&&!paused){
+      synth.pause();paused=true;speaking=false;updateIcon(false);
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent='// paused — press play to continue';
+    }else if(paused){
+      synth.resume();paused=false;speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed(){
+    speedIndex=(speedIndex+1)%speeds.length;
+    document.getElementById('speedBtn').textContent=['0.85×','1×','1.15×','1.3×'][speedIndex];
+    if(speaking){synth.cancel();speakFrom(currentIndex);}
+  }
+
+  if(typeof speechSynthesis!=='undefined'){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+</script>
+</body>
+</html>

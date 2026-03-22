@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IM+Fell+English:ital@0;1&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0b08;
+    color: #c9b89a;
+    font-family: 'IM Fell English', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,11,8,0.96);
+    border-bottom: 1px solid #2a1e12;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    backdrop-filter: blur(8px);
+  }
+
+  .play-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #c0392b;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .play-btn:hover { background: #e74c3c; transform: scale(1.05); }
+  .play-btn:active { transform: scale(0.97); }
+
+  .play-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+  .narrator-info {
+    flex: 1;
+  }
+
+  .narrator-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c0392b;
+    margin-bottom: 2px;
+  }
+
+  .narrator-status {
+    font-size: 0.85rem;
+    color: #7a6a55;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+  }
+
+  .narrator-status.speaking {
+    color: #c9b89a;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: #2a1e12;
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 80px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #c0392b;
+    width: 0%;
+    transition: width 0.3s linear;
+    border-radius: 2px;
+  }
+
+  .speed-btn {
+    background: none;
+    border: 1px solid #3a2e1e;
+    color: #7a6a55;
+    font-family: 'IM Fell English', serif;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .speed-btn:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* STORY */
+  .header-area {
+    margin-bottom: 72px;
+    border-bottom: 1px solid #2a1e12;
+    padding-bottom: 48px;
+  }
+
+  .epigraph {
+    font-style: italic;
+    color: #7a6a55;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    margin-bottom: 0;
+    line-height: 1.8;
+    border-left: 2px solid #3a2e1e;
+    padding-left: 24px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeIn 1.5s ease forwards;
+    opacity: 0;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 900;
+    color: #e8d5b0;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    animation: slideUp 1.2s ease forwards;
+    opacity: 0;
+  }
+
+  .subtitle {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #8a7055;
+    letter-spacing: 0.08em;
+    margin-bottom: 40px;
+    animation: slideUp 1.2s 0.2s ease forwards;
+    opacity: 0;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #3a2e1e, transparent);
+  }
+
+  .divider-symbol { color: #c0392b; font-size: 1.2rem; }
+
+  .chapter-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #c0392b;
+    margin-bottom: 8px;
+  }
+
+  .chapter-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e0c898;
+    margin-bottom: 28px;
+  }
+
+  p {
+    font-size: 1.08rem;
+    line-height: 1.95;
+    margin-bottom: 22px;
+    color: #c0aa88;
+    text-align: justify;
+    hyphens: auto;
+    transition: background 0.3s;
+  }
+
+  .reading-highlight {
+    background: rgba(192, 57, 43, 0.08);
+    border-radius: 3px;
+  }
+
+  p:first-of-type::first-letter {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: #c0392b;
+    float: left;
+    line-height: 0.75;
+    margin: 8px 10px 0 0;
+  }
+
+  .section { animation: fadeIn 1s ease forwards; opacity: 0; }
+  .section:nth-child(1) { animation-delay: 0.4s; }
+  .section:nth-child(2) { animation-delay: 0.6s; }
+  .section:nth-child(3) { animation-delay: 0.8s; }
+  .section:nth-child(4) { animation-delay: 1.0s; }
+  .section:nth-child(5) { animation-delay: 1.2s; }
+  .section:nth-child(6) { animation-delay: 1.4s; }
+
+  .pull-quote {
+    border-left: 3px solid #c0392b;
+    padding: 12px 24px;
+    margin: 36px 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: #e0c898;
+    line-height: 1.6;
+    background: rgba(192, 57, 43, 0.04);
+  }
+
+  .ticker { font-family: 'Courier New', monospace; color: #c0392b; font-size: 0.9rem; font-style: normal; }
+  .ticker.green { color: #27ae60; }
+
+  .tag {
+    display: inline-block;
+    background: #c0392b;
+    color: #0d0b08;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-bottom: 16px;
+    font-family: 'IM Fell English', serif;
+  }
+
+  .war-log {
+    background: rgba(192, 57, 43, 0.06);
+    border: 1px solid #2a1810;
+    border-left: 3px solid #c0392b;
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    color: #8a7055;
+    line-height: 2;
+  }
+
+  .war-log .log-title {
+    color: #c0392b;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    margin-bottom: 8px;
+  }
+
+  .end-mark {
+    text-align: center;
+    color: #5a4a35;
+    font-size: 2rem;
+    margin-top: 60px;
+    letter-spacing: 0.5em;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .waveform {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 20px;
+  }
+  .wave-bar {
+    width: 3px;
+    background: #c0392b;
+    border-radius: 2px;
+    animation: none;
+    height: 4px;
+    transition: height 0.1s;
+  }
+  .waveform.active .wave-bar:nth-child(1) { animation: wave 0.8s 0.0s infinite; }
+  .waveform.active .wave-bar:nth-child(2) { animation: wave 0.8s 0.15s infinite; }
+  .waveform.active .wave-bar:nth-child(3) { animation: wave 0.8s 0.3s infinite; }
+  .waveform.active .wave-bar:nth-child(4) { animation: wave 0.8s 0.1s infinite; }
+  .waveform.active .wave-bar:nth-child(5) { animation: wave 0.8s 0.25s infinite; }
+  @keyframes wave {
+    0%, 100% { height: 4px; }
+    50% { height: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<!-- NARRATOR BAR -->
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">Narrator</div>
+    <div class="narrator-status" id="narratorStatus">Press play to hear the story</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+  <div class="header-area">
+    <div class="tag">Fiction · Markets · War</div>
+    <h1>Trench Warriors</h1>
+    <div class="subtitle">A Story of Scalpers in the Theater of the Market</div>
+    <div class="epigraph">
+      "In the trenches, there are no heroes — only survivors who were faster than the man next to them."<br><br>
+      — Attributed to no one. Felt by everyone.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-title">Chapter I</div>
+    <div class="chapter-heading">The Mud Before Dawn</div>
+    <p id="p1">The alarm never rang. Danny Reyes was already awake — had been for an hour, lying in the dark of his apartment with the ceiling fan casting slow shadows across the wall like candlestick wicks retracing their own bodies. He knew the pre-market would open in forty minutes. He knew, the way soldiers know the enemy is moving before a single shot is fired, by some vibration in the air that has no name and needs none.</p>
+    <p id="p2">He rose. He did not eat. You don't eat before you go over the top — not really, not when the thing in your gut isn't hunger. He brewed black coffee and pulled his chair to the screens. Three monitors. Level II quotes running like rainfall down the left panel. The futures already bleeding red before New York even opened its eyes.</p>
+    <p id="p3">Danny was a scalper. Not a swing trader, not an investor — those men fought different wars, wars with the luxury of distance and time. He was something else entirely. He was infantry. He lived and died in increments of cents, in fractions of minutes, in orders placed and canceled inside the span of a single breath. His battlefield was the order book, and its terrain changed faster than any map could capture.</p>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">✦</span></div>
+
+  <div class="section">
+    <div class="chapter-title">Chapter II</div>
+    <div class="chapter-heading">No Man's Land: The Bid-Ask Spread</div>
+    <p id="p4">The spread was the trench. On one side lived the buyers — the bid, that trembling wall of demand, stacked in lots at prices the market would pay. On the other, the ask: sellers fortified behind their number, patient, rifles trained. Between the two lay a narrow strip of nothing, a few cents of silence where money changed hands in the blink of a transaction. That gap was no man's land. To cross it was to either profit or bleed.</p>
+    <p id="p5">Danny had a rule: never hold more than two minutes. Two minutes was an eternity. Two minutes could turn a disciplined scalp into a full-blown firefight you never signed up for, with artillery coming in from earnings reports and Fed speakers and some rumor born on a financial news ticker that nobody sourced and everybody believed. Two minutes was how a surgeon became a casualty.</p>
+    <p id="p6">He moved like a man who had memorized the rhythm of shelling. In. Out. Three cents. Five cents. Sometimes eight, if the momentum gods were generous. He never got greedy. Greed was the soldier who stood up in the trench to see what was happening on the other side. Greed got you shot every time.</p>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">✦</span></div>
+
+  <div class="section">
+    <div class="chapter-title">Chapter III</div>
+    <div class="chapter-heading">The Squad</div>
+    <p id="p7">There were others like him in the chat room. They didn't use their real names there — they never did. In the digital trench, names were call signs. There was Foxhole, a retired firefighter in Cincinnati who'd found trading after forty, who scalped with the patience of a man who'd learned how to wait out fires. There was Zero-Dark, a woman in Houston with three monitors and a Vietnamese coffee habit who traded pre-market like it owed her money — and often, it paid. There was Casket, who had chosen his own name and refused to explain it, who entered trades so precisely timed that other traders called him the surgeon and said it reverently, the way you call something supernatural.</p>
+    <p id="p8">The chat moved faster than thought. It was a field radio crackling with intelligence — spotted movements, sudden reversals, warnings about dark pool prints and iceberg orders hiding their true size beneath the surface of the tape. They watched out for each other the way men in foxholes do, not because they were noble, but because the market was vast and cold and indifferent, and you couldn't watch every direction at once.</p>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">✦</span></div>
+
+  <div class="section">
+    <div class="chapter-title">Chapter IV</div>
+    <div class="chapter-heading">The Assault: A Trade in Real Time</div>
+    <p id="p9">At 10:14 AM, Danny saw it. A pattern he knew — not from any textbook, but from the muscle memory of a thousand trades. The tape on NQ was printing heavy bids, large lots absorbing every offer that came down. The Level II was stacking green. Someone big was accumulating, methodically, disguising the size. The ask was thinning.</p>
+    <p id="p10">He felt his heartbeat in his throat. Not from fear — from recognition. He had been here before. This was the moment before the artillery strike, the charged silence when both sides knew something was about to break.</p>
+    <p id="p11">He clicked. Three hundred contracts. The order filled in zero point zero three seconds — an eternity and an eyeblink, a lifetime in market time. He watched the DOM like a hawk watches a field. The bid held. Then surged. The ask began to lift, sellers retreating as buyers overwhelmed the line. The price moved. Six ticks. Eight. Twelve. He set his finger over the exit key.</p>
+    <p id="p12">Fifteen ticks. He was out. Clean. Gone before the move fully resolved, before anyone on the outside could even register what had happened. He exhaled. The whole engagement had lasted forty-one seconds. He'd been in no man's land and crossed it. Today, the mud hadn't taken him.</p>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">✦</span></div>
+
+  <div class="section">
+    <div class="chapter-title">Chapter V</div>
+    <div class="chapter-heading">The Toll</div>
+    <p id="p13">Not every trade was that. For every clean assault there were three ambushes — entries that looked right until they weren't, stops hit by half a cent before the price reversed, orders slipping in thin markets like boots losing purchase in wet ground. Danny kept a loss log. Most traders didn't; they called it negative thinking. He called it war journalism. You had to know what was killing you, or it would keep killing you with the same weapon.</p>
+    <p id="p14">Foxhole had blown up two accounts before he got disciplined. Zero-Dark had a drawer she called the cemetery — printed trade confirmations from her worst days, folded and buried there so she'd never forget what overconfidence cost. Casket had once held a losing position for four hours, too proud to exit, and watched it carve through three stop levels he'd told himself he'd honor. He'd honored nothing. The market had carved him, and he'd sat there watching it happen like a man watching his own court-martial.</p>
+    <p id="p15">The market doesn't hate you. That's the cruelest part. It doesn't even know your name. It is simply the sum of every human fear and greed and hope, compressed into a number that changes faster than mercy.</p>
+    <p id="p16">They all carried their ledgers of loss the way veterans carry their particular silences. Not with shame, exactly — shame was for men who hadn't tried. They carried it with the sober weight of knowledge, the kind you can only earn by bleeding for it.</p>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">✦</span></div>
+
+  <div class="section">
+    <div class="chapter-title">Chapter VI</div>
+    <div class="chapter-heading">4 PM: The Guns Go Quiet</div>
+    <p id="p17">The closing bell wasn't dramatic. It never was. There was no trumpet, no signal flare — just a tone, and then the quotes went still, and the battlefield became an empty field again, a quiet green expanse of aftermath. The day's chart hung on the screen like a topographic map of everything that had happened — every ridge and valley, every desperate stand and sudden rout, all compressed into a single day's candlestick that tomorrow would summarize as simply: up, or down.</p>
+    <p id="p18">Danny leaned back and read the day's numbers. Forty-seven trades. Thirty-one winners. Sixteen losers. Net: positive. Not dramatically — there were no dramatic days in scalping, not sustainable ones. It was a grind, and grinds didn't have heroes. They had survivors who showed up again tomorrow.</p>
+    <p id="p19">He closed the platform. Outside, the afternoon was ordinary: traffic, a dog barking somewhere, the smell of someone cooking. The world had no idea what had happened in the trenches today. It never did. The market opened and closed and the world moved on, and the trench warriors cleaned their rifles, counted their wounds, and went to sleep early because tomorrow's pre-market opened at four.</p>
+    <p id="p20">In the chat room, the final messages trickled in. Green on AAPL, Foxhole typed. SPY played clean today. Rough open but found my rhythm. Tomorrow, said Zero-Dark. And Casket sent only a single period — which meant what it always meant: still breathing.</p>
+    <p id="p21">Danny typed nothing. He never did at close. He only read. Then he shut his laptop, walked to the window, and watched the light go amber over the city — over all those people who had no idea that today, in a war without geography, in a battlefield made of numbers, a small squad of strangers had gone over the top a hundred times, and all of them had made it back.</p>
+    <p id="p22">For today.</p>
+  </div>
+
+  <div class="end-mark">— ✦ —</div>
+</div>
+
+<script>
+  const paragraphIds = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','p21','p22'];
+  const chapterLabels = {
+    p1: 'Chapter I — The Mud Before Dawn',
+    p4: 'Chapter II — No Man\'s Land',
+    p7: 'Chapter III — The Squad',
+    p9: 'Chapter IV — The Assault',
+    p13: 'Chapter V — The Toll',
+    p17: 'Chapter VI — The Guns Go Quiet'
+  };
+
+  let speaking = false;
+  let utterances = [];
+  let currentIndex = 0;
+  let speeds = [0.85, 1, 1.25, 1.5];
+  let speedIndex = 1;
+  let synth = window.speechSynthesis;
+  let currentHighlight = null;
+  let paused = false;
+
+  function getVoice() {
+    const voices = synth.getVoices();
+    // Prefer a deep English male voice
+    const preferred = voices.find(v =>
+      (v.name.includes('Daniel') || v.name.includes('David') || v.name.includes('Alex') || v.name.includes('Google UK English Male'))
+      && v.lang.startsWith('en')
+    );
+    return preferred || voices.find(v => v.lang.startsWith('en')) || voices[0];
+  }
+
+  function updatePlayIcon(isPlaying) {
+    const icon = document.getElementById('playIcon');
+    if (isPlaying) {
+      icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+    } else {
+      icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    }
+  }
+
+  function clearHighlight() {
+    if (currentHighlight) {
+      currentHighlight.classList.remove('reading-highlight');
+      currentHighlight = null;
+    }
+  }
+
+  function highlightParagraph(id) {
+    clearHighlight();
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('reading-highlight');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      currentHighlight = el;
+    }
+  }
+
+  function updateProgress(index) {
+    const pct = ((index) / paragraphIds.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  function updateStatus(id) {
+    const label = chapterLabels[id];
+    const statusEl = document.getElementById('narratorStatus');
+    if (label) {
+      statusEl.textContent = label;
+    }
+    statusEl.classList.add('speaking');
+  }
+
+  function speakFrom(index) {
+    synth.cancel();
+    currentIndex = index;
+
+    function speakNext() {
+      if (currentIndex >= paragraphIds.length) {
+        // Done
+        speaking = false;
+        paused = false;
+        updatePlayIcon(false);
+        clearHighlight();
+        document.getElementById('narratorStatus').textContent = 'Finished — press play to restart';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('progressFill').style.width = '100%';
+        return;
+      }
+
+      const id = paragraphIds[currentIndex];
+      const el = document.getElementById(id);
+      if (!el) { currentIndex++; speakNext(); return; }
+
+      const text = el.innerText.replace(/[✦—]/g, '').trim();
+      if (!text) { currentIndex++; speakNext(); return; }
+
+      highlightParagraph(id);
+      updateStatus(id);
+      updateProgress(currentIndex);
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.voice = getVoice();
+      utter.rate = speeds[speedIndex];
+      utter.pitch = 0.88;
+      utter.volume = 1;
+
+      utter.onend = () => {
+        if (!speaking) return;
+        currentIndex++;
+        speakNext();
+      };
+
+      utter.onerror = () => {
+        currentIndex++;
+        speakNext();
+      };
+
+      synth.speak(utter);
+    }
+
+    speakNext();
+  }
+
+  function toggleNarrator() {
+    if (!speaking && !paused) {
+      // Start fresh
+      speaking = true;
+      updatePlayIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      // Load voices if needed
+      if (synth.getVoices().length === 0) {
+        synth.onvoiceschanged = () => speakFrom(currentIndex);
+      } else {
+        speakFrom(currentIndex);
+      }
+    } else if (speaking && !paused) {
+      // Pause
+      synth.pause();
+      paused = true;
+      speaking = false;
+      updatePlayIcon(false);
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent = 'Paused — press play to continue';
+    } else if (paused) {
+      // Resume
+      synth.resume();
+      paused = false;
+      speaking = true;
+      updatePlayIcon(true);
+      document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed() {
+    speedIndex = (speedIndex + 1) % speeds.length;
+    const labels = ['0.85×', '1×', '1.25×', '1.5×'];
+    document.getElementById('speedBtn').textContent = labels[speedIndex];
+    // If currently speaking, restart from current paragraph at new speed
+    if (speaking) {
+      synth.cancel();
+      speakFrom(currentIndex);
+    }
+  }
+
+  // Load voices early
+  if (typeof speechSynthesis !== 'undefined') {
+    speechSynthesis.getVoices();
+    speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+  }
+</script>
+</body>
+</html>

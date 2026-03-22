@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#0c0a07;
+    color:#b8a888;
+    font-family:'Source Serif 4',Georgia,serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .grain{
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;
+  }
+
+  /* warm amber vignette — feels like a bare bulb in a small room */
+  .vignette{
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(6,4,2,0.75) 100%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(12,10,7,0.97);
+    border-bottom:1px solid #221a0e;
+    padding:13px 24px;
+    display:flex;align-items:center;gap:16px;
+    backdrop-filter:blur(10px);
+  }
+  .play-btn{
+    width:42px;height:42px;border-radius:50%;
+    background:#8b4513;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background 0.2s,transform 0.15s;
+  }
+  .play-btn:hover{background:#a0522d;transform:scale(1.05)}
+  .play-btn svg{width:17px;height:17px;fill:#f0d8b0}
+  .narrator-info{flex:1;min-width:0}
+  .narrator-title{font-family:'Libre Baskerville',serif;font-size:0.66rem;letter-spacing:0.28em;text-transform:uppercase;color:#8b4513;margin-bottom:2px}
+  .narrator-status{font-size:0.84rem;color:#4a3820;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .narrator-status.speaking{color:#a09070}
+  .progress-bar{flex:1;height:2px;background:#221a0e;border-radius:2px;overflow:hidden;min-width:60px}
+  .progress-fill{height:100%;background:#8b4513;width:0%;transition:width 0.3s linear}
+  .speed-btn{background:none;border:1px solid #221a0e;color:#4a3820;font-family:'Source Serif 4',serif;font-size:0.8rem;padding:4px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .speed-btn:hover{border-color:#8b4513;color:#8b4513}
+  .waveform{display:flex;align-items:center;gap:2px;height:20px}
+  .wave-bar{width:3px;background:#8b4513;border-radius:2px;height:4px}
+  .waveform.active .wave-bar:nth-child(1){animation:wave 0.9s 0.0s infinite}
+  .waveform.active .wave-bar:nth-child(2){animation:wave 0.9s 0.18s infinite}
+  .waveform.active .wave-bar:nth-child(3){animation:wave 0.9s 0.36s infinite}
+  .waveform.active .wave-bar:nth-child(4){animation:wave 0.9s 0.09s infinite}
+  .waveform.active .wave-bar:nth-child(5){animation:wave 0.9s 0.27s infinite}
+  @keyframes wave{0%,100%{height:4px}50%{height:17px}}
+
+  /* LAYOUT */
+  .container{max-width:760px;margin:0 auto;padding:80px 40px 140px;position:relative;z-index:1}
+
+  .series-eyebrow{font-family:'Libre Baskerville',serif;font-size:0.66rem;letter-spacing:0.38em;text-transform:uppercase;color:#4a3010;display:block;margin-bottom:18px;animation:rise 1.1s ease forwards;opacity:0}
+
+  .tag{display:inline-block;border:1px solid #2a1a08;color:#4a3010;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;padding:3px 10px;margin-bottom:22px;font-family:'Libre Baskerville',serif;animation:rise 1s 0.05s ease forwards;opacity:0}
+
+  h1{font-family:'Libre Baskerville',serif;font-size:clamp(3rem,8vw,5.2rem);font-weight:700;color:#e8d0a0;line-height:1.0;letter-spacing:-0.02em;margin-bottom:10px;animation:rise 1.2s 0.1s ease forwards;opacity:0}
+
+  .subtitle{font-family:'Libre Baskerville',serif;font-style:italic;font-size:1.1rem;color:#5a3a18;letter-spacing:0.05em;margin-bottom:44px;animation:rise 1.2s 0.2s ease forwards;opacity:0}
+
+  .epigraph{font-style:italic;color:#4a3820;font-size:0.97rem;line-height:1.9;border-left:2px solid #221508;padding:4px 0 4px 22px;max-width:430px;margin:0 auto;animation:rise 1.4s 0.3s ease forwards;opacity:0}
+
+  .header-area{margin-bottom:80px;padding-bottom:56px;border-bottom:1px solid #180e04}
+
+  .chapter-label{font-family:'Libre Baskerville',serif;font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:#8b4513;margin-bottom:6px}
+
+  .chapter-heading{font-family:'Libre Baskerville',serif;font-size:1.85rem;font-weight:700;color:#d8b878;margin-bottom:30px;line-height:1.2}
+
+  p{font-size:1.1rem;line-height:2.0;margin-bottom:24px;color:#8a7858;text-align:justify;hyphens:auto;font-weight:300;transition:background 0.4s}
+
+  .section>p:first-of-type::first-letter{
+    font-family:'Libre Baskerville',serif;
+    font-size:4.8rem;font-weight:700;
+    color:#8b4513;
+    float:left;line-height:0.72;margin:10px 12px 0 0;
+  }
+
+  .reading-highlight{background:rgba(139,69,19,0.1);border-radius:3px;padding:2px 4px;margin:-2px -4px}
+
+  .pull-quote{
+    border-top:1px solid #1e1208;border-bottom:1px solid #1e1208;
+    padding:26px 0;margin:44px 0;
+    font-family:'Libre Baskerville',serif;font-style:italic;
+    font-size:1.35rem;color:#b07840;line-height:1.7;text-align:center;
+  }
+
+  .inner-thought{
+    background:rgba(255,255,255,0.012);
+    border-left:2px solid #221508;
+    padding:16px 22px;margin:28px 0;
+    font-style:italic;font-size:1.0rem;
+    color:#4a3420;line-height:1.9;
+    font-family:'Libre Baskerville',serif;
+  }
+
+  .account-log{
+    background:rgba(139,69,19,0.05);
+    border:1px solid #1e1008;border-left:3px solid #8b4513;
+    padding:20px 24px;margin:32px 0;
+    font-family:'Courier New',monospace;font-size:0.82rem;
+    color:#5a4020;line-height:2.1;
+  }
+  .account-log .log-title{color:#8b4513;letter-spacing:0.15em;text-transform:uppercase;font-size:0.7rem;margin-bottom:8px}
+  .red{color:#c0392b}.green{color:#5a8a3a}
+
+  .section{animation:rise 1s ease forwards;opacity:0}
+  .section:nth-child(1){animation-delay:0.4s}
+  .section:nth-child(2){animation-delay:0.55s}
+  .section:nth-child(3){animation-delay:0.7s}
+  .section:nth-child(4){animation-delay:0.85s}
+  .section:nth-child(5){animation-delay:1.0s}
+  .section:nth-child(6){animation-delay:1.15s}
+  .section:nth-child(7){animation-delay:1.3s}
+
+  .divider{display:flex;align-items:center;gap:18px;margin:52px 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#1e1208,transparent)}
+  .divider-sym{color:#8b4513;font-size:1rem}
+
+  .end-mark{text-align:center;color:#2a1808;font-size:1.8rem;margin-top:80px;letter-spacing:0.6em;font-family:'Libre Baskerville',serif}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<!-- NARRATOR BAR -->
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">Narrator</div>
+    <div class="narrator-status" id="narratorStatus">Press play to hear the story</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+
+  <div class="header-area">
+    <span class="series-eyebrow">The Scalper Chronicles — Book III</span>
+    <div class="tag">Fiction · Redemption · Ego · Rock Bottom</div>
+    <h1>The Comeback</h1>
+    <div class="subtitle">A Story of the Man Who Lost Everything and Came Back for More</div>
+    <div class="epigraph">
+      "The most dangerous trader in any room<br>
+      is not the one who has never blown up.<br>
+      It is the one who has — and still<br>
+      believes the next account will be different<br>
+      for all the wrong reasons."
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter I</div>
+    <div class="chapter-heading">The Eighteen Days</div>
+    <p id="p1">Marcus Webb lost his first account on a Tuesday in April, but the dying had started long before that. It started the way most catastrophes start — not with a single terrible decision but with a series of small ones, each reasonable in the moment, each building on the last, each requiring the next to be even larger in order to make the previous one mean something. This is the arithmetic of ruin. By the time it finishes its calculation, you have lost not just the money but the story you told yourself to justify losing it.</p>
+    <p id="p2">He had been up forty-one percent on the year. He had told his wife this. He had told his brother-in-law this at Thanksgiving, which was a mistake he would reconstruct for years — not because it was wrong at the time, but because of what it cost him when it became wrong later. Words spoken at dinner tables become debts. He hadn't understood that yet.</p>
+    <p id="p3">The eighteen days began with a single trade he held overnight — a rule he had always kept, broken once because he was certain. Certainty is the first symptom. By day four he was averaging down on a position that was telling him plainly, in the only language markets speak, to get out. By day nine he had given back everything the year had given him. By day eighteen there was nothing left but the number on the screen and the particular silence of a man who has just watched the proof of himself dissolve.</p>
+
+    <div class="account-log" id="al1">
+      <div class="log-title">// Account Summary — Day 18</div>
+      Starting Balance: &nbsp;<span class="green">$84,200.00</span><br>
+      Current Balance: &nbsp;&nbsp;<span class="red">$1,847.33</span><br>
+      Drawdown: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="red">-97.8%</span><br>
+      Open Positions: &nbsp;&nbsp;&nbsp;0<br>
+      Status: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="red">ACCOUNT EFFECTIVELY CLOSED</span>
+    </div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◈</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter II</div>
+    <div class="chapter-heading">The Year Away</div>
+    <p id="p4">He did not trade for eleven months. This was not a choice he made with clarity or resolve — it was what happened when the thing you were trying to do became physically impossible. He had no capital and no appetite and for a long time no particular reason to rebuild either. He took contract work in logistics, which he was competent at and cared nothing about, and he came home in the evenings and sat in a chair and watched the market close on his phone like a man watching a fire from across the street, unable to look away, unable to do anything about it.</p>
+    <p id="p5">His wife, Claire, did not leave him. This surprised him. He had given her reasonable grounds and she had chosen not to use them, which was either love or stubbornness and he suspected it was some indivisible mixture of both. She did not ask him to stop trading permanently. She asked him to be honest with her — about the money, about the risk, about when things were going wrong before they went all the way wrong. He said he would. He meant it when he said it. He would discover later how hard a promise that simple actually was to keep.</p>
+    <div class="inner-thought" id="it1">You think the hard part is the money. It isn't the money. The money is just the unit of measurement. What you actually lost was the right to be certain about yourself. And you want it back so badly you can feel it like a physical thing, like hunger, like a tooth that won't stop aching in the dark.</div>
+    <p id="p6">During the eleven months he read. Trading books first, then psychology, then — unexpectedly — philosophy. Marcus Aurelius. Epictetus. Men who had built entire systems for surviving the gap between what you could control and what you couldn't. He found himself underlining sentences with the intensity of a man receiving instructions. He told no one about this. It felt too much like admitting the previous version of himself had been missing something fundamental, and he was not yet ready to say that plainly, even to himself.</p>
+  </div>
+
+  <div class="pull-quote" id="pq1">There is a kind of education that only ruin provides. The tuition is everything you have. Most people pay it once. Some pay it twice. A rare few pay it and come out the other side carrying something that cannot be taught any other way.</div>
+
+  <div class="divider"><span class="divider-sym">◈</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter III</div>
+    <div class="chapter-heading">The New Account</div>
+    <p id="p7">He funded a new account with eight thousand dollars on a Monday morning in March. Not eighty thousand — eight. He had chosen the number deliberately, the way you choose a calibrated punishment: large enough to be real, small enough to survive losing entirely. He sat at the same desk, in the same chair, looking at the same three monitors — he had not been able to bring himself to change any of it, some stubbornness in him insisting that running from the geography would be its own kind of defeat.</p>
+    <p id="p8">The number looked small on the screen. After eighty-four thousand, eight felt like a whisper in an empty room. He sat with it for a long time before placing a single trade. He had told himself he would feel something when he returned — relief, or excitement, or the old animal aliveness of being back in the game. What he felt instead was a sobriety so complete it was almost indistinguishable from fear. Which was, he would later understand, exactly correct.</p>
+    <div class="inner-thought" id="it2">Look at the number. Really look at it. That number is not a starting point. That number is the cost of admission to find out if you learned anything at all. Eight thousand dollars and eleven months and a marriage that survived something that kills most marriages. Don't you dare waste it proving the same thing twice.</div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◈</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter IV</div>
+    <div class="chapter-heading">What Ego Sounds Like</div>
+    <p id="p9">The first week was clean. Small size, disciplined entries, stops honored without negotiation. He felt the difference in his body — a new slowness, a willingness to wait that the previous version of himself had never possessed. He had been fast before. Speed had felt like talent. He understood now that it had been impatience wearing talent's clothes.</p>
+    <p id="p10">The trouble came in week three, on a Thursday, when he caught a move so clean and so perfectly read that the old voice returned. It said: you still have it. It said: you were never actually broken, just unlucky. It said: you could have been trading full size this whole time. The voice was warm and familiar and completely convincing and it was the most dangerous thing in the room — more dangerous than the market, more dangerous than any chart pattern or earnings report. It was the voice that had walked him into the eighteen days, and here it was again, unchanged, patient, waiting for exactly this moment.</p>
+    <div class="inner-thought" id="it3">You know this voice. You know exactly what it costs. You have the receipt. It's sitting in a drawer in the desk you're currently trading at. And you are listening to it again with the same open face of a man hearing it for the first time. What does that make you?</div>
+    <p id="p11">He did not increase his size. He wrote the voice down in his trading journal instead — verbatim, the way you transcribe a confession, so there would be a record. He had started keeping the journal in month four of the eleven months, at the suggestion of a trading psychologist he had found through a forum, a woman whose measured voice on video calls had a way of making him feel that the things he was admitting were survivable. Writing the voice down was her idea. It was the best advice anyone had ever given him about trading, and it had nothing to do with charts.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◈</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter V</div>
+    <div class="chapter-heading">What He Was Actually Trying to Prove</div>
+    <p id="p12">Three months in, on a slow Friday afternoon, he sat with his journal and asked himself the question he had been avoiding since the day he funded the new account. Not whether he could trade. He already knew the answer to that was yes — the last twelve weeks had told him so in the only language that mattered. The question underneath that question, the one with teeth, was: why does it still matter this much?</p>
+    <p id="p13">He wrote for forty minutes. He crossed things out. He went back. What he arrived at, eventually, was something he had suspected but not yet said: he was not here for the money. Not anymore, maybe not ever, if he was being surgical about it. He was here because the market was the only place he had ever found where the outcome was purely, mercilessly, completely his own responsibility. No boss. No politics. No luck of assignment or inheritance or circumstance. Just him and the decision and the consequence, clean as arithmetic. He had blown up in that cleanness. And he had come back to it because the cleanness was also, in some way he could not entirely explain, the only place he felt entirely real.</p>
+    <p id="p14">He read that back. He underlined it. He called Claire into the room and read it to her out loud, which was the first time in the entire history of his trading that he had shown another human being what was actually written in those pages. She listened. She didn't say anything for a moment. Then she said: I know. I always knew that. I just needed you to know it too.</p>
+  </div>
+
+  <div class="pull-quote" id="pq2">The market doesn't care why you're there. But you have to. You have to know exactly what you're really asking it to give you — because it will take everything else while you're waiting for an answer.</div>
+
+  <div class="divider"><span class="divider-sym">◈</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VI</div>
+    <div class="chapter-heading">Six Months Later</div>
+    <p id="p15">By September the account was at twenty-two thousand. He had tripled it in six months trading small, trading carefully, trading with the particular patience of a man who has learned that the market is not going anywhere and neither is he. He had not had a single day where he violated a rule. Not one. He kept a tally on a notecard taped to the edge of his center monitor — not of profits, but of days in compliance. The number felt more important than the balance.</p>
+    <p id="p16">He was not the same trader. He was not even certain he was the same person. The previous Marcus Webb had been confident the way an uncracked thing is confident — untested, certain of its own solidity right up until the moment it wasn't. This Marcus Webb was confident the way a repaired thing is confident: knowing exactly where the fracture had been, knowing it had held under pressure, carrying that knowledge not as shame but as information. As something structural. As the thing that would keep him from breaking the same way twice.</p>
+    <div class="inner-thought" id="it4">You will probably break some other way. That's fine. That's the deal. The deal is not that you become unbreakable. The deal is that each time you break you understand it more completely, and each time you come back you come back with something you didn't have before. That's not a weakness. That's the whole education.</div>
+    <p id="p17">In October he got a message in the chat room — a new handle he'd made when he came back, quietly, without announcing his return. The message was from someone called Foxhole, a regular whose read on the tape Marcus had come to respect without ever saying so. The message said: you've been consistent for weeks. Who taught you patience? Marcus typed back: I paid for it. Foxhole sent a single period. Which Marcus, in the language of that room, understood perfectly.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◈</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VII</div>
+    <div class="chapter-heading">The Question That Doesn't Go Away</div>
+    <p id="p18">There was a question Claire asked him one night over dinner that he didn't answer right away. She wasn't pressing — she asked it the way you ask something you've been wondering for a long time without urgency, just honestly, the way long marriages allow. She asked: do you think you would have figured any of this out without losing it all?</p>
+    <p id="p19">He thought about it for three days. He thought about it on the drive to work and in the shower and at the desk between trades when the tape was slow and his mind had room to move. He considered the possibility that there was a version of himself who had never blown up, who had simply grown more disciplined through effort and study and good coaching — who had arrived at the same understanding through a gentler road. He held that version of himself in his mind carefully, turning it over, trying to find where it rang true.</p>
+    <p id="p20">He came back to the dinner table on a Wednesday and said: no. I don't think so. I think I needed to lose it. I think some people can learn from other people's mistakes and some people have to make the mistake so large they can't look away from it. I think I was always the second kind of person. I just didn't know it until the eighteen days showed me.</p>
+    <p id="p21">Claire nodded. She poured more wine. Outside the window the city was dark and the market had been closed for five hours and in eight hours it would open again and he would be at the desk before it was, coffee in hand, watching the futures for what they carried. The same desk. The same chair. A different man sitting in it, wearing the old man's shape, carrying the old man's wound, and every morning choosing — deliberately, with full knowledge of the cost — to go back in.</p>
+  </div>
+
+  <div class="end-mark">◈ ◈ ◈</div>
+
+</div>
+
+<script>
+  const paragraphIds=['p1','p2','p3','al1','p4','p5','it1','p6','pq1','p7','p8','it2','p9','p10','it3','p11','p12','p13','p14','pq2','p15','p16','it4','p17','p18','p19','p20','p21'];
+  const chapterLabels={p1:'Chapter I — The Eighteen Days',p4:'Chapter II — The Year Away',p7:'Chapter III — The New Account',p9:'Chapter IV — What Ego Sounds Like',p12:'Chapter V — What He Was Actually Trying to Prove',p15:'Chapter VI — Six Months Later',p18:'Chapter VII — The Question That Doesn\'t Go Away'};
+
+  let speaking=false,paused=false,currentIndex=0;
+  let speeds=[0.85,1,1.15,1.3],speedIndex=1;
+  const synth=window.speechSynthesis;
+
+  function getVoice(){
+    const v=synth.getVoices();
+    return v.find(x=>(x.name.includes('Daniel')||x.name.includes('David')||x.name.includes('Alex')||x.name.includes('Google UK English Male'))&&x.lang.startsWith('en'))
+      ||v.find(x=>x.lang.startsWith('en-'))||v[0];
+  }
+
+  function updateIcon(p){document.getElementById('playIcon').innerHTML=p?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
+
+  function clearHL(){document.querySelectorAll('.reading-highlight').forEach(el=>el.classList.remove('reading-highlight'));}
+
+  function highlight(id){
+    clearHL();
+    const el=document.getElementById(id);
+    if(el){el.classList.add('reading-highlight');el.scrollIntoView({behavior:'smooth',block:'center'});}
+  }
+
+  function speakFrom(index){
+    synth.cancel();currentIndex=index;
+    function next(){
+      if(currentIndex>=paragraphIds.length){
+        speaking=false;paused=false;updateIcon(false);clearHL();
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('narratorStatus').textContent='Finished — press play to restart';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('progressFill').style.width='100%';
+        return;
+      }
+      const id=paragraphIds[currentIndex];
+      const el=document.getElementById(id);
+      if(!el){currentIndex++;next();return;}
+      const text=el.innerText.replace(/[◈—]/g,'').trim();
+      if(!text){currentIndex++;next();return;}
+
+      highlight(id);
+      const label=chapterLabels[id];
+      if(label){document.getElementById('narratorStatus').textContent=label;document.getElementById('narratorStatus').classList.add('speaking');}
+      document.getElementById('progressFill').style.width=((currentIndex/paragraphIds.length)*100)+'%';
+
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=getVoice();u.rate=speeds[speedIndex];u.pitch=0.87;u.volume=1;
+      u.onend=()=>{if(!speaking)return;currentIndex++;next();};
+      u.onerror=()=>{currentIndex++;next();};
+      synth.speak(u);
+    }
+    next();
+  }
+
+  function toggleNarrator(){
+    if(!speaking&&!paused){
+      speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      if(synth.getVoices().length===0){synth.onvoiceschanged=()=>speakFrom(currentIndex);}
+      else speakFrom(currentIndex);
+    }else if(speaking&&!paused){
+      synth.pause();paused=true;speaking=false;updateIcon(false);
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent='Paused — press play to continue';
+    }else if(paused){
+      synth.resume();paused=false;speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed(){
+    speedIndex=(speedIndex+1)%speeds.length;
+    document.getElementById('speedBtn').textContent=['0.85×','1×','1.15×','1.3×'][speedIndex];
+    if(speaking){synth.cancel();speakFrom(currentIndex);}
+  }
+
+  if(typeof speechSynthesis!=='undefined'){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+</script>
+</body>
+</html>

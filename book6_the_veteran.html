@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#09080a;
+    color:#a89898;
+    font-family:'EB Garamond',Georgia,serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .grain{
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.034'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;
+  }
+
+  .vignette{
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at 45% 35%, rgba(40,20,10,0.08) 0%, rgba(6,4,6,0.88) 100%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(9,8,10,0.97);
+    border-bottom:1px solid #1e1618;
+    padding:13px 24px;
+    display:flex;align-items:center;gap:16px;
+    backdrop-filter:blur(10px);
+  }
+  .play-btn{
+    width:42px;height:42px;border-radius:50%;
+    background:#5a3a2a;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background 0.2s,transform 0.15s;
+  }
+  .play-btn:hover{background:#7a4a38;transform:scale(1.05)}
+  .play-btn svg{width:17px;height:17px;fill:#e8c8a8}
+  .narrator-info{flex:1;min-width:0}
+  .narrator-title{font-family:'Playfair Display',serif;font-size:0.66rem;letter-spacing:0.28em;text-transform:uppercase;color:#5a3a2a;margin-bottom:2px}
+  .narrator-status{font-size:0.84rem;color:#2a1a18;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .narrator-status.speaking{color:#907060}
+  .progress-bar{flex:1;height:2px;background:#1e1618;border-radius:2px;overflow:hidden;min-width:60px}
+  .progress-fill{height:100%;background:#5a3a2a;width:0%;transition:width 0.3s linear}
+  .speed-btn{background:none;border:1px solid #1e1618;color:#2a1a18;font-family:'EB Garamond',serif;font-size:0.8rem;padding:4px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .speed-btn:hover{border-color:#5a3a2a;color:#5a3a2a}
+  .waveform{display:flex;align-items:center;gap:2px;height:20px}
+  .wave-bar{width:3px;background:#5a3a2a;border-radius:2px;height:4px}
+  .waveform.active .wave-bar:nth-child(1){animation:wave 1.2s 0.0s infinite}
+  .waveform.active .wave-bar:nth-child(2){animation:wave 1.2s 0.24s infinite}
+  .waveform.active .wave-bar:nth-child(3){animation:wave 1.2s 0.48s infinite}
+  .waveform.active .wave-bar:nth-child(4){animation:wave 1.2s 0.12s infinite}
+  .waveform.active .wave-bar:nth-child(5){animation:wave 1.2s 0.36s infinite}
+  @keyframes wave{0%,100%{height:4px}50%{height:17px}}
+
+  .container{max-width:760px;margin:0 auto;padding:80px 40px 140px;position:relative;z-index:1}
+
+  .series-eyebrow{font-family:'Playfair Display',serif;font-size:0.66rem;letter-spacing:0.4em;text-transform:uppercase;color:#2a1810;display:block;margin-bottom:18px;animation:rise 1s ease forwards;opacity:0}
+
+  .tag{display:inline-block;border:1px solid #1e1010;color:#2a1810;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;padding:3px 10px;margin-bottom:22px;font-family:'Playfair Display',serif;animation:rise 1s 0.05s ease forwards;opacity:0}
+
+  h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,8vw,5.4rem);font-weight:900;color:#d8c0a8;line-height:1.0;letter-spacing:-0.02em;margin-bottom:10px;animation:rise 1.2s 0.1s ease forwards;opacity:0}
+
+  .subtitle{font-family:'Playfair Display',serif;font-style:italic;font-size:1.1rem;color:#3a2018;letter-spacing:0.05em;margin-bottom:44px;animation:rise 1.2s 0.2s ease forwards;opacity:0}
+
+  .epigraph{font-style:italic;color:#2a1818;font-size:0.97rem;line-height:1.9;border-left:2px solid #1e1010;padding:4px 0 4px 22px;max-width:440px;margin:0 auto;animation:rise 1.4s 0.3s ease forwards;opacity:0}
+
+  .header-area{margin-bottom:80px;padding-bottom:56px;border-bottom:1px solid #120a0a}
+
+  .chapter-label{font-family:'Playfair Display',serif;font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:#5a3a2a;margin-bottom:6px}
+
+  .chapter-heading{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:#c8a888;margin-bottom:30px;line-height:1.2}
+
+  p{font-size:1.12rem;line-height:2.05;margin-bottom:24px;color:#706050;text-align:justify;hyphens:auto;font-weight:400;transition:background 0.4s}
+
+  .section>p:first-of-type::first-letter{
+    font-family:'Playfair Display',serif;
+    font-size:4.8rem;font-weight:900;
+    color:#5a3a2a;
+    float:left;line-height:0.72;margin:10px 12px 0 0;
+  }
+
+  .reading-highlight{background:rgba(90,58,42,0.1);border-radius:3px;padding:2px 4px;margin:-2px -4px}
+
+  .pull-quote{
+    border-top:1px solid #1e1010;border-bottom:1px solid #1e1010;
+    padding:26px 0;margin:44px 0;
+    font-family:'Playfair Display',serif;font-style:italic;
+    font-size:1.32rem;color:#7a5040;line-height:1.7;text-align:center;
+  }
+
+  .inner-thought{
+    background:rgba(255,255,255,0.01);
+    border-left:2px solid #1e1010;
+    padding:16px 22px;margin:28px 0;
+    font-style:italic;font-size:1.0rem;
+    color:#2a1818;line-height:1.9;
+    font-family:'Playfair Display',serif;
+  }
+
+  /* career timeline — visual weight of thirty years */
+  .timeline{
+    background:rgba(90,58,42,0.04);
+    border:1px solid #1e1010;
+    border-left:3px solid #5a3a2a;
+    padding:22px 28px;margin:32px 0;
+    font-family:'Courier New',monospace;font-size:0.81rem;
+    color:#2a1818;line-height:2.3;
+  }
+  .timeline .panel-title{color:#5a3a2a;letter-spacing:0.18em;text-transform:uppercase;font-size:0.7rem;margin-bottom:10px}
+  .yr{color:#5a3a2a;font-weight:bold}
+  .yr-dim{color:#1e1010}
+  .yr-note{color:#3a2820}
+  .yr-gone{color:#1a1010;text-decoration:line-through;text-decoration-color:#2a1810}
+
+  .section{animation:rise 1s ease forwards;opacity:0}
+  .section:nth-child(1){animation-delay:0.4s}
+  .section:nth-child(2){animation-delay:0.55s}
+  .section:nth-child(3){animation-delay:0.7s}
+  .section:nth-child(4){animation-delay:0.85s}
+  .section:nth-child(5){animation-delay:1.0s}
+  .section:nth-child(6){animation-delay:1.15s}
+  .section:nth-child(7){animation-delay:1.3s}
+
+  .divider{display:flex;align-items:center;gap:18px;margin:52px 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#1e1010,transparent)}
+  .divider-sym{color:#5a3a2a;font-size:0.9rem}
+
+  .end-mark{text-align:center;color:#1e1010;font-size:1.8rem;margin-top:80px;letter-spacing:0.6em;font-family:'Playfair Display',serif}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">Narrator</div>
+    <div class="narrator-status" id="narratorStatus">Press play to hear the story</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+
+  <div class="header-area">
+    <span class="series-eyebrow">The Scalper Chronicles — Book VI</span>
+    <div class="tag">Fiction · Legacy · Obsolescence · Time</div>
+    <h1>The Veteran</h1>
+    <div class="subtitle">A Story of the Man the Market Is Learning to Live Without</div>
+    <div class="epigraph">
+      "He had survived every crash,<br>
+      every bubble, every new thing<br>
+      that turned out to be an old thing<br>
+      wearing new clothes.<br>
+      What he had not survived yet<br>
+      was becoming the old thing himself."
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter I</div>
+    <div class="chapter-heading">Thirty Years at the Same Desk</div>
+    <p id="p1">Ray Costello had been trading since 1995, which meant he had been trading before most of the people currently in the market had been born. He had traded through the dot-com bubble and its collapse, through 9/11 and the strange days that followed when the market reopened and the grief and the panic moved through the tape in ways that no model had ever anticipated, through the 2008 financial crisis which he had seen coming six months before it arrived and had not profited from because seeing something coming and positioning correctly for it are two entirely different skills. He had traded through flash crashes and elections and pandemics and the slow algorithmic revolution that had been rewriting the rules of his profession one percentage point of edge at a time for the past fifteen years. He was sixty-one years old and he had survived all of it. He was beginning to understand that survival and relevance are not the same thing.</p>
+    <p id="p2">The desk was in a second-floor office in a building in Jersey City that he had rented since 2003. He could have worked from home — many days he almost did — but the commute was part of it, the ritual of leaving the house and crossing the water and arriving at a place designated for the work. It made the work real in a way that a home office, with its domestic adjacencies, its interruptions and its comforts, could not quite replicate. He had been making this commute for twenty-two years. He knew every face on the ferry. Several of them had grown old alongside him without either party ever learning the other's name, which struck him, on certain mornings, as a perfect metaphor for something he couldn't entirely articulate.</p>
+
+    <div class="timeline" id="tl1">
+      <div class="panel-title">// Ray Costello — Thirty Years of Edge</div>
+      <span class="yr">1995–2000</span> &nbsp;<span class="yr-note">Reading the tape by hand. Pit-trained instincts. Edge: enormous.</span><br>
+      <span class="yr">2001–2008</span> &nbsp;<span class="yr-note">Electronic markets. Faster. Adapted. Still ahead.</span><br>
+      <span class="yr">2009–2015</span> &nbsp;<span class="yr-note">HFT arrives. Spreads compress. Edge: shrinking.</span><br>
+      <span class="yr">2016–2020</span> &nbsp;<span class="yr-note">Algos reading patterns he built a career on. Edge: contested.</span><br>
+      <span class="yr-dim">2021–2024</span> &nbsp;<span class="yr-gone">The setups that worked for twenty years. Gone.</span><br>
+      <span class="yr-dim">2025</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="yr-note">Still here. Still at the desk. Still searching.</span>
+    </div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">⬡</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter II</div>
+    <div class="chapter-heading">What the Algorithms Took</div>
+    <p id="p3">The edge had not disappeared all at once. That would have been cleaner, easier to accept — a door closing, a clear before and after. Instead it had eroded the way coastlines erode: imperceptibly, continuously, a grain at a time, so that each individual day looked more or less the same as the day before it, and yet over years the shape of the thing had changed beyond recognition. The setups that had reliably printed money in 2008 produced nothing by 2018. The patterns he had memorized over fifteen years of reading the tape were now being read by machines in microseconds, arbitraged away before a human hand could reach the keyboard. The market was not broken. The market was simply faster than him now, and faster than him in the specific way that mattered — faster at seeing the things he used to be the first to see.</p>
+    <p id="p4">He had adapted before. This was the story he told himself, and it was true — he had adapted from open-outcry instincts to electronic screens, from reading the pit to reading Level II, from intuition to data without abandoning the intuition entirely. He had survived every technological shift the market had thrown at him by finding the new form of the old skill. The question that kept him awake on the ferry some mornings was whether there was a new form of this one. Whether what the algorithms were doing to his edge was adaptation or extinction. Whether the difference between those two things was something a sixty-one-year-old man could cross.</p>
+    <div class="inner-thought" id="it1">You have been the fastest gun in this particular room for so long that you forgot it was possible to be outdrawn. And now the thing doing the outdrawing isn't even a person — it's a process, a loop, a few thousand lines of code running on a server in New Jersey that doesn't know your name, doesn't know your history, doesn't know what it cost you to build what it is casually disassembling. That is the part that gets you. Not the loss. The indifference.</div>
+  </div>
+
+  <div class="pull-quote" id="pq1">The machine does not know it is beating you. It does not feel the victory. It simply runs its loop, finds the pattern, takes the trade — the same trade you would have taken a half second later, for thirty years, until one day the half second became everything.</div>
+
+  <div class="divider"><span class="divider-sym">⬡</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter III</div>
+    <div class="chapter-heading">The Things He Knew That Couldn't Be Coded</div>
+    <p id="p5">He was not finished. He needed to be clear about this, clear-eyed and honest without the distortion of pride in either direction. He was not finished. He still had days — good days, clean days — where something in the tape spoke to him in the language he had been learning for three decades and he read it correctly before anyone or anything else did. The experience was real. Thirty years of pattern recognition lived somewhere in his body that no algorithm had access to — a feel for when the market was lying, for when the volume was wrong, for the particular texture of a move that was about to exhaust itself. These things were not in any dataset. They had been learned through presence, through repetition, through having been wrong in specific ways enough times to recognize the warning signs in his own thinking before he acted on them.</p>
+    <p id="p6">What he knew that couldn't be coded: the way a market feels on the day after a shock, when the volatility is still high but the direction has already been decided and everyone is pretending otherwise. The smell of a short squeeze before the data confirmed it. The difference between a real breakout and a stop hunt dressed as a breakout, which was a distinction that required not just data but memory — the memory of having seen it both ways and having paid the tuition on the wrong read. An algorithm had statistics. Ray had scars. Whether scars still constituted an edge in the current market was the question he had not yet answered, and which some mornings he suspected had already been answered for him.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">⬡</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter IV</div>
+    <div class="chapter-heading">The Conversation with His Son</div>
+    <p id="p7">His son was thirty-four and worked in technology and had the particular confidence of someone whose skills were accelerating rather than eroding, whose field was eating the world rather than being eaten by it. They had dinner on the first Sunday of every month at a restaurant in Hoboken that Ray had been going to since before his son was born, a continuity that pleased him in the way that continuities please people who are watching other things change. His son ordered what he always ordered. Ray ordered what he always ordered. This was one of the remaining pleasures of being sixty-one — having arrived at enough preferences that the menu held no real uncertainty.</p>
+    <p id="p8">His son asked, over the pasta, how trading was going. Not with malice — with genuine interest, the interest of a person who respected his father's expertise while privately believing, Ray suspected, that expertise in manual trading was a category in decline. Ray said: changing. His son nodded and said the word that Ray had come to dread in the way you dread a sound that means something bad is near — he said: AI. He said that the new models were doing things in finance that nobody had predicted eighteen months ago, reading signals in alternative data that no human could process at the required speed and scale. He said it enthusiastically, the way people enthuse about things that don't threaten them.</p>
+    <div class="inner-thought" id="it2">He means well. He is not being cruel. He is simply describing the world accurately from a position that does not require him to absorb the personal cost of that accuracy. You sat at that desk for thirty years. You built something real out of attention and discipline and an instinct you cannot even fully explain. And your son is telling you, in the language of progress, that the thing you built is being rendered obsolete. And he is right. And he is your son. And you love him. And dinner continues.</div>
+    <p id="p9">Ray listened. He asked questions he already knew the answers to, because asking was more dignified than explaining that he had watched this particular movie from closer than his son could imagine. He paid the check, as he always did. Walking back to the PATH train his son said: you could consult, Pop. With your experience. Help someone build the models. Ray nodded and said: maybe. Which was what he said when he didn't want to explain that consulting on the system that was replacing him would be its own particular variety of defeat, and that he wasn't ready for it, and that being not ready at sixty-one was something you were allowed to be, even if you couldn't always say it plainly.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">⬡</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter V</div>
+    <div class="chapter-heading">What Thirty Years Actually Means</div>
+    <p id="p10">He started keeping a different kind of journal. Not the trade log he had always kept — that continued, meticulous as ever, the record of entries and exits and the reasoning behind each, the document that proved he was still thinking, still accountable, still in the game. This was something else. He started writing down what he knew. Not what he knew about specific setups or instruments or market structure — what he knew about the work itself. About what it did to a person. About the particular education of thirty years of sitting with uncertainty and making decisions anyway, of being wrong in public and recovering in private, of building a discipline that could hold under pressure and a psychology that could hold under loss.</p>
+    <p id="p11">He wrote about the things the young traders in the chat rooms he occasionally visited did not yet know — not because they were unintelligent, many of them were sharper than he had been at their age, but because knowledge of this kind is not transferable through information. It lives in time. It requires the accumulation of lived experience in a way that resists compression and cannot be downloaded. He could write all of it down and none of it would reach them the way it had reached him, which was through the slow specific gravity of years.</p>
+    <p id="p12">This did not make him indispensable. He was clear about that. The market would not miss him when he was gone from it — markets are not capable of missing, they only price, and what they could not price was the particular texture of a consciousness that had spent thirty years learning their language. That knowledge would leave with him. This was not tragedy. This was simply the nature of expertise that lives in persons rather than systems — it is mortal in exactly the way the person is mortal, and the loss of it is as invisible as the loss of any other private thing.</p>
+  </div>
+
+  <div class="pull-quote" id="pq2">Every generation of traders believes it has invented the market. Every previous generation knows it has only borrowed it — and that the bill comes due in forms the borrowers cannot yet imagine.</div>
+
+  <div class="divider"><span class="divider-sym">⬡</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VI</div>
+    <div class="chapter-heading">The Ferry, Eastbound, 4:47 PM</div>
+    <p id="p13">On a Thursday in October he had a good day. Not a great day — great days were rarer now, and he had made his peace with that — but a good one. A clean read in the morning, a patient hold, an exit that required waiting out a retracement that would have shaken out a less experienced hand. The kind of trade that required everything he had built over thirty years and could not have been made by a younger version of himself. He made a note of this in the log. Not the profit — the process. That he had done something today that required who he was and not just what he knew. That there was still a version of the edge that was specifically his.</p>
+    <p id="p14">On the ferry home the harbor was going gold in the late light, the Manhattan skyline doing what it does in October which is look exactly like the idea of itself. He had made this crossing thousands of times and it still worked on him — the water and the light and the scale of the city against the sky, the particular beauty of a place you have known long enough to see past its surface to the accumulated history of your own experience of it. Thirty years of this crossing. He had been thirty-one the first time, arriving at the desk, arriving at the work, arriving at the life that would turn out to be this one.</p>
+    <p id="p15">A young man stood at the railing near him, looking at his phone, not seeing any of it. Ray considered saying something and did not. The young man would see it eventually, or he would not — that was between him and the thirty years he had yet to live. Ray watched the city. The light changed. The ferry moved. The market had been open for six and a half hours and in fourteen hours it would open again and he would be at the desk before it was, reading the tape with the attention of someone who has not yet exhausted the reasons to pay it.</p>
+    <div class="inner-thought" id="it3">Not yet. That's the answer you've been looking for. Not finished — not yet. You don't know what you are when the desk is gone because the desk isn't gone. It's still there. The edge is still there, changed but present, the way everything real changes without entirely disappearing. You adapt again. You have always adapted. You are sixty-one years old and you have been outdrawn and you are still standing and tomorrow the market opens and you will be there and that is not nothing. That is in fact the whole thing.</div>
+    <p id="p16">The ferry docked. He gathered his bag, nodded to the deckhand he had been nodding to for eleven years, and walked off into the evening with the particular gait of a man who has somewhere specific to be tomorrow morning and intends to be there.</p>
+  </div>
+
+  <div class="end-mark">⬡ ⬡ ⬡</div>
+
+</div>
+
+<script>
+  const paragraphIds=['p1','p2','tl1','p3','p4','it1','pq1','p5','p6','p7','p8','it2','p9','p10','p11','p12','pq2','p13','p14','p15','it3','p16'];
+  const chapterLabels={p1:'Chapter I — Thirty Years at the Same Desk',p3:'Chapter II — What the Algorithms Took',p5:'Chapter III — The Things He Knew That Couldn\'t Be Coded',p7:'Chapter IV — The Conversation with His Son',p10:'Chapter V — What Thirty Years Actually Means',p13:'Chapter VI — The Ferry, Eastbound'};
+
+  let speaking=false,paused=false,currentIndex=0;
+  let speeds=[0.85,1,1.15,1.3],speedIndex=1;
+  const synth=window.speechSynthesis;
+
+  function getVoice(){
+    const v=synth.getVoices();
+    return v.find(x=>(x.name.includes('Daniel')||x.name.includes('David')||x.name.includes('Alex')||x.name.includes('Fred'))&&x.lang.startsWith('en'))
+      ||v.find(x=>x.lang.startsWith('en-'))||v[0];
+  }
+
+  function updateIcon(p){document.getElementById('playIcon').innerHTML=p?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
+  function clearHL(){document.querySelectorAll('.reading-highlight').forEach(el=>el.classList.remove('reading-highlight'));}
+  function highlight(id){clearHL();const el=document.getElementById(id);if(el){el.classList.add('reading-highlight');el.scrollIntoView({behavior:'smooth',block:'center'});}}
+
+  function speakFrom(index){
+    synth.cancel();currentIndex=index;
+    function next(){
+      if(currentIndex>=paragraphIds.length){
+        speaking=false;paused=false;updateIcon(false);clearHL();
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('narratorStatus').textContent='Finished — press play to restart';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('progressFill').style.width='100%';
+        return;
+      }
+      const id=paragraphIds[currentIndex];
+      const el=document.getElementById(id);
+      if(!el){currentIndex++;next();return;}
+      const text=el.innerText.replace(/[⬡—]/g,'').trim();
+      if(!text){currentIndex++;next();return;}
+      highlight(id);
+      const label=chapterLabels[id];
+      if(label){document.getElementById('narratorStatus').textContent=label;document.getElementById('narratorStatus').classList.add('speaking');}
+      document.getElementById('progressFill').style.width=((currentIndex/paragraphIds.length)*100)+'%';
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=getVoice();u.rate=speeds[speedIndex];u.pitch=0.85;u.volume=1;
+      u.onend=()=>{if(!speaking)return;currentIndex++;next();};
+      u.onerror=()=>{currentIndex++;next();};
+      synth.speak(u);
+    }
+    next();
+  }
+
+  function toggleNarrator(){
+    if(!speaking&&!paused){
+      speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      if(synth.getVoices().length===0){synth.onvoiceschanged=()=>speakFrom(currentIndex);}
+      else speakFrom(currentIndex);
+    }else if(speaking&&!paused){
+      synth.pause();paused=true;speaking=false;updateIcon(false);
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent='Paused — press play to continue';
+    }else if(paused){
+      synth.resume();paused=false;speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed(){
+    speedIndex=(speedIndex+1)%speeds.length;
+    document.getElementById('speedBtn').textContent=['0.85×','1×','1.15×','1.3×'][speedIndex];
+    if(speaking){synth.cancel();speakFrom(currentIndex);}
+  }
+
+  if(typeof speechSynthesis!=='undefined'){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+</script>
+</body>
+</html>

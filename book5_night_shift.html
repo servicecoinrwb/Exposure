@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#060810;
+    color:#9aa8be;
+    font-family:'Spectral',Georgia,serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .grain{
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;
+  }
+
+  /* deep indigo night — London 3am, blue-black, distant streetlight */
+  .vignette{
+    position:fixed;inset:0;
+    background:radial-gradient(ellipse at 40% 20%, rgba(20,30,80,0.12) 0%, rgba(4,5,12,0.9) 100%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(6,8,16,0.97);
+    border-bottom:1px solid #0e1228;
+    padding:13px 24px;
+    display:flex;align-items:center;gap:16px;
+    backdrop-filter:blur(10px);
+  }
+  .play-btn{
+    width:42px;height:42px;border-radius:50%;
+    background:#2a3a7a;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:background 0.2s,transform 0.15s;
+  }
+  .play-btn:hover{background:#3a4aaa;transform:scale(1.05)}
+  .play-btn svg{width:17px;height:17px;fill:#c0d0f8}
+  .narrator-info{flex:1;min-width:0}
+  .narrator-title{font-family:'Fraunces',serif;font-size:0.66rem;letter-spacing:0.28em;text-transform:uppercase;color:#2a3a7a;margin-bottom:2px}
+  .narrator-status{font-size:0.84rem;color:#1a2040;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .narrator-status.speaking{color:#7a8ab8}
+  .progress-bar{flex:1;height:2px;background:#0e1228;border-radius:2px;overflow:hidden;min-width:60px}
+  .progress-fill{height:100%;background:#2a3a7a;width:0%;transition:width 0.3s linear}
+  .speed-btn{background:none;border:1px solid #0e1228;color:#1a2040;font-family:'Spectral',serif;font-size:0.8rem;padding:4px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .speed-btn:hover{border-color:#2a3a7a;color:#2a3a7a}
+  .waveform{display:flex;align-items:center;gap:2px;height:20px}
+  .wave-bar{width:3px;background:#2a3a7a;border-radius:2px;height:4px}
+  .waveform.active .wave-bar:nth-child(1){animation:wave 1.1s 0.0s infinite}
+  .waveform.active .wave-bar:nth-child(2){animation:wave 1.1s 0.2s infinite}
+  .waveform.active .wave-bar:nth-child(3){animation:wave 1.1s 0.4s infinite}
+  .waveform.active .wave-bar:nth-child(4){animation:wave 1.1s 0.1s infinite}
+  .waveform.active .wave-bar:nth-child(5){animation:wave 1.1s 0.3s infinite}
+  @keyframes wave{0%,100%{height:4px}50%{height:17px}}
+
+  .container{max-width:760px;margin:0 auto;padding:80px 40px 140px;position:relative;z-index:1}
+
+  .series-eyebrow{font-family:'Fraunces',serif;font-size:0.66rem;letter-spacing:0.4em;text-transform:uppercase;color:#0e1830;display:block;margin-bottom:18px;animation:rise 1s ease forwards;opacity:0}
+
+  .tag{display:inline-block;border:1px solid #0e1228;color:#1a2040;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;padding:3px 10px;margin-bottom:22px;font-family:'Fraunces',serif;animation:rise 1s 0.05s ease forwards;opacity:0}
+
+  h1{font-family:'Fraunces',serif;font-size:clamp(3rem,8vw,5.4rem);font-weight:300;color:#c8d8f8;line-height:1.0;letter-spacing:-0.01em;margin-bottom:10px;animation:rise 1.2s 0.1s ease forwards;opacity:0}
+
+  .subtitle{font-family:'Fraunces',serif;font-style:italic;font-size:1.1rem;color:#1a2a50;letter-spacing:0.05em;margin-bottom:44px;animation:rise 1.2s 0.2s ease forwards;opacity:0}
+
+  .epigraph{font-style:italic;color:#1a2038;font-size:0.97rem;line-height:1.9;border-left:2px solid #0e1228;padding:4px 0 4px 22px;max-width:440px;margin:0 auto;animation:rise 1.4s 0.3s ease forwards;opacity:0}
+
+  .header-area{margin-bottom:80px;padding-bottom:56px;border-bottom:1px solid #0a0c18}
+
+  .chapter-label{font-family:'Fraunces',serif;font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:#2a3a7a;margin-bottom:6px}
+
+  .chapter-heading{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:300;color:#a8c0e8;margin-bottom:30px;line-height:1.2}
+
+  p{font-size:1.1rem;line-height:2.05;margin-bottom:24px;color:#5a6a88;text-align:justify;hyphens:auto;font-weight:300;transition:background 0.4s}
+
+  .section>p:first-of-type::first-letter{
+    font-family:'Fraunces',serif;
+    font-size:4.8rem;font-weight:300;
+    color:#2a3a7a;
+    float:left;line-height:0.74;margin:10px 12px 0 0;
+  }
+
+  .reading-highlight{background:rgba(42,58,122,0.1);border-radius:3px;padding:2px 4px;margin:-2px -4px}
+
+  .pull-quote{
+    border-top:1px solid #0e1228;border-bottom:1px solid #0e1228;
+    padding:26px 0;margin:44px 0;
+    font-family:'Fraunces',serif;font-style:italic;
+    font-size:1.35rem;color:#4a5a90;line-height:1.7;text-align:center;
+  }
+
+  .inner-thought{
+    background:rgba(255,255,255,0.01);
+    border-left:2px solid #0e1228;
+    padding:16px 22px;margin:28px 0;
+    font-style:italic;font-size:1.0rem;
+    color:#1a2038;line-height:1.9;
+    font-family:'Fraunces',serif;
+  }
+
+  /* clock display — the defining motif of this book */
+  .clock-panel{
+    background:rgba(42,58,122,0.05);
+    border:1px solid #0e1228;
+    border-left:3px solid #2a3a7a;
+    padding:22px 28px;margin:32px 0;
+    font-family:'Courier New',monospace;font-size:0.83rem;
+    color:#1a2a50;line-height:2.2;
+  }
+  .clock-panel .panel-title{color:#2a3a7a;letter-spacing:0.18em;text-transform:uppercase;font-size:0.7rem;margin-bottom:10px}
+  .city{color:#3a5090}
+  .city-time{color:#4a6ab0}
+  .city-dim{color:#1a2038}
+  .city-time-dim{color:#141828}
+  .city-note{color:#1a2038;font-style:italic}
+
+  .section{animation:rise 1s ease forwards;opacity:0}
+  .section:nth-child(1){animation-delay:0.4s}
+  .section:nth-child(2){animation-delay:0.55s}
+  .section:nth-child(3){animation-delay:0.7s}
+  .section:nth-child(4){animation-delay:0.85s}
+  .section:nth-child(5){animation-delay:1.0s}
+  .section:nth-child(6){animation-delay:1.15s}
+  .section:nth-child(7){animation-delay:1.3s}
+
+  .divider{display:flex;align-items:center;gap:18px;margin:52px 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#0e1228,transparent)}
+  .divider-sym{color:#2a3a7a;font-size:0.85rem}
+
+  .end-mark{text-align:center;color:#0e1228;font-size:1.8rem;margin-top:80px;letter-spacing:0.6em;font-family:'Fraunces',serif}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">Narrator</div>
+    <div class="narrator-status" id="narratorStatus">Press play to hear the story</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+
+  <div class="header-area">
+    <span class="series-eyebrow">The Scalper Chronicles — Book V</span>
+    <div class="tag">Fiction · Displacement · Time · Belonging</div>
+    <h1>Night Shift</h1>
+    <div class="subtitle">A Story of Living Twelve Hours Off from Everyone You Love</div>
+    <div class="epigraph">
+      "She did not live in London so much as<br>
+      underneath it — in the hours the city<br>
+      stored away and did not use,<br>
+      the dark margin between one day<br>
+      and the next, where she had built<br>
+      a life that fit perfectly<br>
+      and belonged to no one else."
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter I</div>
+    <div class="chapter-heading">The Hours Nobody Wants</div>
+    <p id="p1">Priya Nair's alarm went off at 1:45 AM and she was already awake. She had been a light sleeper before the trading — now she was barely a sleeper at all, catching four or five hours in the early evening like a pilot in a rotation bunk, functional but never fully rested, her body running a permanent deficit that she had learned to manage with green tea and the particular alertness that comes from doing something that demands everything you have. She rose in the dark of her Bermondsey flat and did not turn on the overhead light. She knew the room by feel, by the long habit of moving through it in darkness so as not to shatter the mood of the night, which had its own texture she had come to value — the quality of London at 2 AM, the orange sodium glow through the curtains, the distant sound of the city settling into itself like a large animal lying down.</p>
+    <p id="p2">She traded the Asian session. Tokyo opened at 1 AM London time. Singapore at 1 AM. Hong Kong at 2. The instruments she followed moved in those hours with a rhythm entirely different from the New York open — slower in some ways, sharper in others, governed by different hands and different anxieties, shaped by economic data released in time zones where the sun was already well up and the working day already half-spent. She had learned this rhythm the way you learn any new language — first laboriously, then fluently, and finally in a way that felt like it had always been inside her, waiting to be spoken.</p>
+
+    <div class="clock-panel" id="cl1">
+      <div class="panel-title">// World Clock — Priya's Desk, 2:00 AM</div>
+      <span class="city">London &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="city-time">02:00 — She is awake. She is trading.</span><br>
+      <span class="city">Tokyo &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="city-time">11:00 — Nikkei mid-session.</span><br>
+      <span class="city">Mumbai &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="city-time">06:30 — Her mother is making chai.</span><br>
+      <span class="city-dim">New York &nbsp;&nbsp;&nbsp;</span> <span class="city-time-dim">21:00 — Danny Reyes is asleep.</span><br>
+      <span class="city-dim">Chicago &nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="city-time-dim">20:00 — Marcus Webb is reading Aurelius.</span><br>
+      <span class="city-note">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Everyone she loves is somewhere else in time.</span>
+    </div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">★</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter II</div>
+    <div class="chapter-heading">How She Got Here</div>
+    <p id="p3">She had come to London from Chennai at twenty-four for a graduate program in financial mathematics — the kind of program that produces people who go to work for banks in glass buildings and trade other people's money with a remorseless precision that has nothing to do with the thing Priya would discover eighteen months later, which was that she wanted to trade her own. The program gave her the mathematics. The mathematics gave her an edge. The edge gave her a way out of the glass buildings, which she took quietly and without burning any bridges, because she was a careful person and had learned early that the world is smaller than it appears and the people you dismiss have a way of reappearing in inconvenient configurations.</p>
+    <p id="p4">She had stayed in London after the program ended partly because leaving felt like admitting the city had defeated her, and partly because of a man she had been seeing who turned out to be less of a reason to stay than she had believed at the time, and partly — the real reason, the one she admitted only to herself — because she had started trading the Asian session from her bedroom and found that London's terrible position in world time zones was, for once, exactly right. She was never going back to Chennai. She was not quite staying in London. She was living in the hours between, in the market's middle-of-the-night grammar, in a life that fit her precisely and could not be explained to anyone she loved without losing something in the translation.</p>
+  </div>
+
+  <div class="pull-quote" id="pq1">There is a particular kind of freedom that comes from living outside everyone else's schedule. And a particular kind of grief that is its exact shadow — the grief of the person at the party who can see through the window but cannot hear the music.</div>
+
+  <div class="divider"><span class="divider-sym">★</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter III</div>
+    <div class="chapter-heading">The Phone Calls</div>
+    <p id="p5">She called her mother every Sunday. Her mother was in Chennai and woke at five-thirty and by the time Priya's session closed at six AM London time they had a narrow window — a sliver of overlap where both of them were conscious and available and the distance between them was bridged by a phone signal that cost nothing and crossed everything. They talked about ordinary things. Her mother's garden. The neighbor's daughter's wedding. What Priya was eating, which her mother asked with a specificity and concern that Priya used to find intrusive and now found necessary — a small weekly reminder that someone in the world was tracking her physical existence, that she did not live entirely inside her own head and the market's numbers.</p>
+    <p id="p6">She did not tell her mother what she earned. She had tried once, early on, and the number had produced a silence on the line that was not admiration but something closer to incomprehension — the silence of a person encountering an amount of money that exists outside the architecture of their understanding. It had made Priya feel alien in a way she did not want to repeat. So she said: enough. She said: it's going well. She said: I sleep enough, Amma, yes. This last one was the only thing she said on those calls that was not true.</p>
+    <div class="inner-thought" id="it1">You are awake right now and she is waking up and in three hours she will call you on your way to sleep and you will be cheerful and reassuring and she will hear in your voice the thing you are not saying and she will not press because she loves you and because pressing would require her to know what to do with the answer. You are both protecting each other from the truth of how far away you actually are.</div>
+    <p id="p7">Her friends in London — the ones she had made during the program, the ones who had gone to the glass buildings — lived in a different London than she did. Their London had lunches and evening drinks and the ordinary social infrastructure of people with synchronized schedules. They invited her to things she could not attend, not because she was unwilling but because Thursday evening for them was Thursday evening for her too, except that by Thursday evening she had already been awake for sixteen hours and would be asleep by nine, and explaining this every time required more energy than the friendship could always sustain.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">★</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter IV</div>
+    <div class="chapter-heading">What the Night Teaches</div>
+    <p id="p8">There were things the night session gave her that no other session could. The silence, first — the particular quality of trading in the small hours when the city around you has gone quiet and the only sound is the fan of your computer and the occasional bus on the street below, a sound so far from the screen that it belongs to a different world entirely. In that silence her concentration reached depths she had never found during London business hours, when the ambient noise of the waking world created a constant low friction against focus. At 3 AM she was alone in a way that sharpened rather than softened her — every read cleaner, every hesitation more legible, the noise between her instinct and her execution reduced to almost nothing.</p>
+    <p id="p9">The Asian session also taught her patience of a specific kind — the patience of someone who has learned to read a market that moves slowly and then all at once, that telegraphs its intentions hours before it acts on them if you are paying the right kind of attention. Tokyo was not New York. It did not roar. It deliberated. It carried the weight of its own particular anxieties — the yen, the Nikkei's relationship to global risk appetite, the BOJ's shadow falling over everything — and it rewarded the trader who understood that deliberation, who could sit still inside it and wait for the moment when the slow intention finally became price.</p>
+    <div class="inner-thought" id="it2">You chose this session because the mathematics pointed here. But you stayed because the night suited you in some way you don't entirely understand — something about the quality of attention it demands, the way it strips everything back to just you and the tape and the dark window and the city that has given you the courtesy of going away. In the night you are nobody's daughter, nobody's ex, nobody's former colleague. You are only what you see in the order book. That is either freedom or loneliness. Most mornings it is both.</div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">★</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter V</div>
+    <div class="chapter-heading">The Morning the Directions Crossed</div>
+    <p id="p10">On a Wednesday in November she had her best session in months. A clean read on the Nikkei futures at 3:20 AM, followed by a BOJ-related move she had anticipated from a pattern she had been tracking for eleven days — disciplined, patient, exactly the kind of trade the night session rewarded and the New York open rarely had time for. She closed her platform at 5:45 AM, in profit, in the particular peace of work done well, and she went to the window and looked out over the rooftops of Bermondsey going blue with the first light.</p>
+    <p id="p11">London was waking up. She could hear it — the first buses, a delivery van, voices beginning to populate the street below. People starting their days as she was ending hers, moving toward the city with coffee and earphones and the ordinary forward motion of lives running on the world's schedule. She watched them from the window with a feeling she had no precise word for — not envy, not superiority, not loneliness exactly, but some compound of all three. She was on the other side of the glass from the waking world, and the glass was a thing she had chosen and could not unchoose, and it was the right choice, and it was also the thing that made her feel, on certain mornings, like a figure in a museum — present, visible, fundamentally untouchable.</p>
+    <p id="p12">Her phone lit up. Her mother, in Chennai, where it was already 11:15 AM and the morning well underway. She answered. Her mother said: I was just thinking of you. Priya stood at the window with the city waking below her and said: I was just thinking of you too. Which was true. Which was, in the arithmetic of two people living twelve hours and five thousand miles apart, about as close as you could get.</p>
+  </div>
+
+  <div class="pull-quote" id="pq2">The hardest thing about living in the night is not the fatigue. It is the celebration — the wins that happen in the dark, in the silence, witnessed by no one, which you carry alone through all the sleeping hours until the world wakes up and the moment has passed and it is no longer a thing that happened but only a number in a log.</div>
+
+  <div class="divider"><span class="divider-sym">★</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VI</div>
+    <div class="chapter-heading">What She Missed Without Knowing</div>
+    <p id="p13">The wedding was in March. Her cousin, in Chennai, the big kind — three days, five hundred people, the full architecture of a family occasion that required bodies in rooms, not voices on phones. She did not go. She had told herself it was the cost of the flights, then the difficulty of resetting her sleep cycle for two weeks, then the work she would miss. These were all true. None of them were the real reason, which was that she was afraid of going back into the world that ran on daylight and realizing how thoroughly she had reorganized herself out of it.</p>
+    <p id="p14">She watched the photos appear on her phone over those three days — her mother in a silk saree, her aunt crying at something, her cousin radiant and surrounded, the whole warm crush of people who had known each other for decades gathered in rooms that smelled like flowers and cooking and the particular incense of important occasions. She looked at the photos in the blue light of her trading desk at 4 AM, surrounded by the silence of London sleeping, and she felt the distance in her body like a weather system — something that moved through her and kept moving, that she could not stop or name or fully release.</p>
+    <div class="inner-thought" id="it3">You chose this. You keep choosing it every morning when the alarm goes at 1:45 and you get up in the dark and sit down at the screens. Nobody made you live here in the night. You built this life with great care and great intelligence and it is a good life and it is yours and you are sometimes, in the early morning when London is waking up and the session is closing and the world is changing shifts without you, desperately lonely in a way you have no one to tell because everyone who would understand is asleep.</div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">★</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VII</div>
+    <div class="chapter-heading">6 AM, Bermondsey</div>
+    <p id="p15">She developed a ritual for the end of sessions. After she closed the platform, after she made her notes in the log, after the last numbers had been recorded and the day's assessment written — she made one cup of proper tea, not the green tea of the working hours but the kind her mother made, with milk and cardamom, and she took it to the window. She gave herself twenty minutes at the window. Just to watch. Just to be in the transition — the session ending, the city beginning, the two worlds passing through each other in the early light like trains on adjacent tracks.</p>
+    <p id="p16">She was not unhappy. She needed to say this plainly because the loneliness could make it seem otherwise, and it was not otherwise. She had built something real and rigorous and entirely her own — a life that fitted her particular intelligence, her patience, her capacity for the deep solitude that the night demanded. She had done this in a city that was not her home and a time zone that was not her native one, and she had done it without a template, without anyone to follow, in the dark hours that the market offered and everyone else declined.</p>
+    <p id="p17">On the good mornings, and there were many good mornings, she stood at the window with her cardamom tea and felt something she could only call rightness — the specific satisfaction of a person living precisely the life they chose, with full understanding of its costs, without flinching from either the freedom or the loss. She was thirty-one years old and she was awake when London slept and asleep when London woke and she was five thousand miles from her mother and twelve hours off from everyone she loved and she was, in the only way that finally mattered, exactly where she had decided to be.</p>
+    <p id="p18">The city came up into the light. The buses multiplied. A child appeared on the pavement below, walking with a parent toward school, pointing at something on the ground that only children find worth pointing at. Priya watched them until they turned the corner and were gone. Then she finished her tea, rinsed the cup, closed the curtains, and went to sleep — moving into the dark just as London moved into the day, each of them beginning something the other was ending, each of them exactly on schedule, each of them exactly on time.</p>
+  </div>
+
+  <div class="end-mark">★ ★ ★</div>
+
+</div>
+
+<script>
+  const paragraphIds=['p1','p2','cl1','p3','p4','pq1','p5','p6','it1','p7','p8','p9','it2','p10','p11','p12','pq2','p13','p14','it3','p15','p16','p17','p18'];
+  const chapterLabels={p1:'Chapter I — The Hours Nobody Wants',p3:'Chapter II — How She Got Here',p5:'Chapter III — The Phone Calls',p8:'Chapter IV — What the Night Teaches',p10:'Chapter V — The Morning the Directions Crossed',p13:'Chapter VI — What She Missed Without Knowing',p15:'Chapter VII — 6 AM, Bermondsey'};
+
+  let speaking=false,paused=false,currentIndex=0;
+  let speeds=[0.85,1,1.15,1.3],speedIndex=1;
+  const synth=window.speechSynthesis;
+
+  function getVoice(){
+    const v=synth.getVoices();
+    return v.find(x=>(x.name.includes('Samantha')||x.name.includes('Karen')||x.name.includes('Google UK English Female')||x.name.includes('Moira'))&&x.lang.startsWith('en'))
+      ||v.find(x=>x.lang.startsWith('en-'))||v[0];
+  }
+
+  function updateIcon(p){document.getElementById('playIcon').innerHTML=p?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
+  function clearHL(){document.querySelectorAll('.reading-highlight').forEach(el=>el.classList.remove('reading-highlight'));}
+  function highlight(id){clearHL();const el=document.getElementById(id);if(el){el.classList.add('reading-highlight');el.scrollIntoView({behavior:'smooth',block:'center'});}}
+
+  function speakFrom(index){
+    synth.cancel();currentIndex=index;
+    function next(){
+      if(currentIndex>=paragraphIds.length){
+        speaking=false;paused=false;updateIcon(false);clearHL();
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('narratorStatus').textContent='Finished — press play to restart';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('progressFill').style.width='100%';
+        return;
+      }
+      const id=paragraphIds[currentIndex];
+      const el=document.getElementById(id);
+      if(!el){currentIndex++;next();return;}
+      const text=el.innerText.replace(/[★—]/g,'').trim();
+      if(!text){currentIndex++;next();return;}
+      highlight(id);
+      const label=chapterLabels[id];
+      if(label){document.getElementById('narratorStatus').textContent=label;document.getElementById('narratorStatus').classList.add('speaking');}
+      document.getElementById('progressFill').style.width=((currentIndex/paragraphIds.length)*100)+'%';
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=getVoice();u.rate=speeds[speedIndex];u.pitch=0.95;u.volume=1;
+      u.onend=()=>{if(!speaking)return;currentIndex++;next();};
+      u.onerror=()=>{currentIndex++;next();};
+      synth.speak(u);
+    }
+    next();
+  }
+
+  function toggleNarrator(){
+    if(!speaking&&!paused){
+      speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      if(synth.getVoices().length===0){synth.onvoiceschanged=()=>speakFrom(currentIndex);}
+      else speakFrom(currentIndex);
+    }else if(speaking&&!paused){
+      synth.pause();paused=true;speaking=false;updateIcon(false);
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent='Paused — press play to continue';
+    }else if(paused){
+      synth.resume();paused=false;speaking=true;updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed(){
+    speedIndex=(speedIndex+1)%speeds.length;
+    document.getElementById('speedBtn').textContent=['0.85×','1×','1.15×','1.3×'][speedIndex];
+    if(speaking){synth.cancel();speakFrom(currentIndex);}
+  }
+
+  if(typeof speechSynthesis!=='undefined'){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+</script>
+</body>
+</html>

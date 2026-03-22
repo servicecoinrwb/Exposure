@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0c10;
+    color: #b8c4d4;
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* subtle blue vignette */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(5,8,18,0.7) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NARRATOR BAR */
+  .narrator-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,16,0.97);
+    border-bottom: 1px solid #1a2030;
+    padding: 13px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  .play-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #2a4a7a;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .play-btn:hover { background: #3a6aaa; transform: scale(1.05); }
+  .play-btn svg { width: 17px; height: 17px; fill: #c8d8f0; }
+
+  .narrator-info { flex: 1; min-width: 0; }
+  .narrator-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #3a6aaa;
+    margin-bottom: 2px;
+  }
+  .narrator-status {
+    font-size: 0.84rem;
+    color: #4a5a70;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .narrator-status.speaking { color: #9aafca; }
+
+  .progress-bar { flex: 1; height: 2px; background: #1a2030; border-radius: 2px; overflow: hidden; min-width: 60px; }
+  .progress-fill { height: 100%; background: #2a4a7a; width: 0%; transition: width 0.3s linear; }
+
+  .speed-btn {
+    background: none;
+    border: 1px solid #1a2030;
+    color: #4a5a70;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .speed-btn:hover { border-color: #3a6aaa; color: #3a6aaa; }
+
+  .waveform { display: flex; align-items: center; gap: 2px; height: 20px; }
+  .wave-bar { width: 3px; background: #2a4a7a; border-radius: 2px; height: 4px; }
+  .waveform.active .wave-bar:nth-child(1) { animation: wave 1s 0.0s infinite; }
+  .waveform.active .wave-bar:nth-child(2) { animation: wave 1s 0.2s infinite; }
+  .waveform.active .wave-bar:nth-child(3) { animation: wave 1s 0.4s infinite; }
+  .waveform.active .wave-bar:nth-child(4) { animation: wave 1s 0.1s infinite; }
+  .waveform.active .wave-bar:nth-child(5) { animation: wave 1s 0.3s infinite; }
+  @keyframes wave { 0%,100%{height:4px} 50%{height:17px} }
+
+  /* LAYOUT */
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 40px 140px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .book-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #2a4a7a;
+    margin-bottom: 20px;
+    display: block;
+    animation: rise 1.2s ease forwards; opacity: 0;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 600;
+    color: #d8e4f4;
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+    animation: rise 1.2s 0.1s ease forwards; opacity: 0;
+  }
+
+  .subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: #3a5070;
+    letter-spacing: 0.06em;
+    margin-bottom: 48px;
+    animation: rise 1.2s 0.2s ease forwards; opacity: 0;
+  }
+
+  .epigraph {
+    font-style: italic;
+    color: #4a6080;
+    font-size: 0.98rem;
+    line-height: 1.85;
+    border-left: 1px solid #1a2a40;
+    padding: 4px 0 4px 22px;
+    margin-bottom: 0;
+    max-width: 400px;
+    animation: rise 1.4s 0.3s ease forwards; opacity: 0;
+  }
+
+  .header-area {
+    margin-bottom: 80px;
+    padding-bottom: 56px;
+    border-bottom: 1px solid #141820;
+  }
+
+  /* CHAPTERS */
+  .chapter-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #2a4a7a;
+    margin-bottom: 6px;
+  }
+
+  .chapter-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #c4d4e8;
+    margin-bottom: 32px;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: 1.12rem;
+    line-height: 2.0;
+    margin-bottom: 24px;
+    color: #8a9aaa;
+    text-align: justify;
+    hyphens: auto;
+    font-weight: 300;
+    transition: background 0.4s;
+  }
+
+  .section > p:first-of-type::first-letter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4.8rem;
+    font-weight: 700;
+    color: #2a4a7a;
+    float: left;
+    line-height: 0.72;
+    margin: 10px 10px 0 0;
+  }
+
+  .reading-highlight {
+    background: rgba(42, 74, 122, 0.09);
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+  }
+
+  .pull-quote {
+    border-top: 1px solid #1a2a40;
+    border-bottom: 1px solid #1a2a40;
+    padding: 28px 0;
+    margin: 44px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #7a9abA;
+    line-height: 1.65;
+    text-align: center;
+  }
+
+  .inner-thought {
+    background: rgba(255,255,255,0.015);
+    border-left: 2px solid #1a2a40;
+    padding: 18px 24px;
+    margin: 30px 0;
+    font-style: italic;
+    font-size: 1.0rem;
+    color: #4a6070;
+    line-height: 1.85;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .section {
+    animation: rise 1s ease forwards; opacity: 0;
+    margin-bottom: 16px;
+  }
+  .section:nth-child(1){animation-delay:0.5s}
+  .section:nth-child(2){animation-delay:0.7s}
+  .section:nth-child(3){animation-delay:0.9s}
+  .section:nth-child(4){animation-delay:1.1s}
+  .section:nth-child(5){animation-delay:1.3s}
+  .section:nth-child(6){animation-delay:1.5s}
+  .section:nth-child(7){animation-delay:1.7s}
+
+  .divider {
+    display: flex; align-items: center; gap: 18px;
+    margin: 52px 0;
+  }
+  .divider::before,.divider::after {
+    content:''; flex:1; height:1px;
+    background: linear-gradient(to right, transparent, #1a2a40, transparent);
+  }
+  .divider-sym { color: #2a4a7a; font-size: 1rem; }
+
+  .end-mark {
+    text-align: center;
+    color: #1a2a40;
+    font-size: 1.8rem;
+    margin-top: 80px;
+    letter-spacing: 0.6em;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .tag {
+    display: inline-block;
+    border: 1px solid #1a2a40;
+    color: #3a5070;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    margin-bottom: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    animation: rise 1s 0.05s ease forwards; opacity: 0;
+  }
+
+  @keyframes rise {
+    from { opacity:0; transform: translateY(18px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<!-- NARRATOR BAR -->
+<div class="narrator-bar">
+  <button class="play-btn" id="playBtn" onclick="toggleNarrator()">
+    <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="narrator-info">
+    <div class="narrator-title">Narrator</div>
+    <div class="narrator-status" id="narratorStatus">Press play to hear the story</div>
+  </div>
+  <div class="waveform" id="waveform">
+    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div class="wave-bar"></div><div class="wave-bar"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1×</button>
+</div>
+
+<div class="container">
+
+  <div class="header-area">
+    <span class="book-label">Book II — The Scalper Chronicles</span>
+    <div class="tag">Fiction · Psychology · Solitude</div>
+    <h1>The Erosion</h1>
+    <div class="subtitle">A Story of What the Market Takes When It Takes Everything Else</div>
+    <div class="epigraph">
+      "She did not lose herself all at once.<br>
+      The market is patient. It takes you<br>
+      the way water takes stone —<br>
+      grain by grain, until one day<br>
+      you look in the mirror and see<br>
+      only the shape of what you used to be."
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter I</div>
+    <div class="chapter-heading">Before</div>
+    <p id="p1">Her name was Renee Cole, and before the screens, she had been the kind of woman who kept plants. She had six of them on the windowsill of her Chicago apartment — a fiddle-leaf fig she'd named Gerald, two trailing pothos, a stubborn succulent, a peace lily she'd nursed back from the edge of death, and one she could never identify that bloomed small purple flowers every March without being asked. She watered them on Sunday mornings while music played from a small speaker on the counter. She called friends back within a day. She made plans and kept them.</p>
+    <p id="p2">That was before she found trading. Or before trading found her — she was never quite sure which direction the thing had moved. What she knew was that it started as a curiosity, became a hobby, and somewhere in the long blue light of the screens had become something she didn't have a clean word for. An occupation. A calling. A sentence. All three and none of them entirely.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◦</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter II</div>
+    <div class="chapter-heading">The Architecture of a Day</div>
+    <p id="p3">She woke at 3:45 AM. Not because an alarm told her to — she had stopped needing alarms sometime in the second year, her body having rewired itself around the market's schedule the way a plant rewires itself toward light. The pre-market opened at four. She was always ready before it was.</p>
+    <p id="p4">Coffee. Screens. The futures. The overnight news. She moved through this ritual with the efficiency of a woman who had stripped her mornings of everything that didn't serve the trade. No music now — music pulled her attention sideways and she needed all of it pointing forward. No breakfast until the open settled, usually around ten. Some mornings she forgot entirely.</p>
+    <div class="inner-thought" id="it1">You used to cook breakfast. Real breakfast. Eggs with the yolks still soft, toast with the good butter. You used to eat at a table like a person. Now you eat standing over the sink watching the tape on your phone and you don't even notice until the fork hits the bottom of the bowl.</div>
+    <p id="p5">The market opened at 9:30 and the world outside ceased to exist. This was not metaphor. The UPS driver buzzing the intercom at 10:15 — she did not hear it. The text from her sister asking about Thanksgiving — she would see it at 4:02 PM, an hour and thirty-two minutes after it was sent, and by then the window of casual response had passed and it would sit unanswered another day, another week, until it became the kind of silence that shapes things.</p>
+  </div>
+
+  <div class="pull-quote" id="pq1">The market had a way of making everything outside it feel very small and very far away — like looking at the world through the wrong end of a telescope.</div>
+
+  <div class="divider"><span class="divider-sym">◦</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter III</div>
+    <div class="chapter-heading">Winning Alone</div>
+    <p id="p6">On a Tuesday in October she had her best day. She caught a momentum run on the open, held her nerve through a pullback that would have shaken most traders out, re-entered clean, and by noon had made more money than she had in any previous single session. The number on her screen was real. She had verified it twice.</p>
+    <p id="p7">She stood up from her desk. She walked to the kitchen. She poured a glass of water and stood at the counter and looked at the wall and felt — what? Something that should have been joy but arrived without a vehicle. Joy needs somewhere to go. It needs a face to tell, a voice that will say that's incredible, Renee, that's real, that happened. Without that it just sits in your chest like a pressure with no release valve, and after a while it becomes indistinguishable from its opposite.</p>
+    <p id="p8">She thought about calling her mother. Her mother would ask how she was doing and she would say fine and her mother would ask are you sure and she would say yes, really and they would hang up and nothing would have been said. She thought about texting her old colleague Marcus, who knew enough about markets to understand the achievement. She typed the message twice and deleted it both times. The numbers felt obscene outside the room. Like something that belonged only here, in the blue quiet, between her and the screen that had witnessed it.</p>
+    <div class="inner-thought" id="it2">So this is what it is. You win and you sit with it. Like a meal you eat alone in a restaurant — it's perfectly good, it's exactly what you ordered, and yet.</div>
+    <p id="p9">She went back to her desk. The afternoon session was in forty minutes. She reviewed the morning's trades. She made notes in her log. By the time the market closed she had given back eleven percent of the gain chasing one more move she should have left alone, and the day ended not in celebration but in the familiar posture of accounting — tallying what was taken, what was kept, what had been hers and for how long.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◦</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter IV</div>
+    <div class="chapter-heading">Losing Alone</div>
+    <p id="p10">The losses were different. The losses had no ambiguity about what they were or where they lived. They came home with her — but she never left home, so they were simply always there, in the same room, in the air she was already breathing. A bad day didn't end when she closed the platform. It sat in the apartment like weather. It changed the light. It made the ceiling feel lower.</p>
+    <p id="p11">After a particularly bad week in February she stopped answering the door entirely for three days. Not from despair, she told herself — she was not the kind of woman who confused losing money with losing everything. She told herself she was simply recalibrating. Reviewing. Conducting a post-mortem with appropriate rigor. This was the professional response. She believed this. She almost entirely believed this.</p>
+    <div class="inner-thought" id="it3">The honest version: you sat in the dark and ran the same trades back in your head, twelve, fifteen times, and each time you found a slightly different version of yourself to blame. The you who entered too early. The you who held too long. The you who knew better and did it anyway. You have many selves to prosecute in the dark and plenty of time to do it.</div>
+    <p id="p12">What nobody told her — what no trading book, no YouTube channel, no mentor in any chat room had ever said plainly — was that the psychological weight of loss is not proportional to the dollar amount. A two-hundred-dollar loss on a bad read could hollow her out more completely than a thousand-dollar loss taken cleanly on a stop. It was not about money. It was about narrative. About the story she needed to tell herself to keep returning to the desk. Each loss was a chapter in that story, and some chapters, if you read them wrong, made the next chapter feel impossible to write.</p>
+  </div>
+
+  <div class="pull-quote" id="pq2">Nobody tells you that trading psychology isn't about being tough. It's about being honest. And honesty, in a room by yourself, with no one to perform for, is the hardest thing there is.</div>
+
+  <div class="divider"><span class="divider-sym">◦</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter V</div>
+    <div class="chapter-heading">The Person She Was Becoming</div>
+    <p id="p13">Gerald died in November. The fiddle-leaf fig. She had forgotten to water him for three weeks and by the time she noticed the leaves had gone crisp and brown at the edges in a way that was past saving. She stood over him for a long moment and felt something she could not immediately name — and then recognized it as grief, which embarrassed her, which told her something.</p>
+    <p id="p14">She had become precise and she had become efficient and she had become, in the vocabulary of trading, disciplined. She tracked her statistics with the rigor of a scientist: win rate, average winner, average loser, expectancy, maximum drawdown. She knew herself numerically in ways most people never know themselves at all. And yet the woman who had kept plants and called friends back and made plans — that woman was somewhere behind the numbers, receding, becoming a historical figure she visited occasionally in old photographs and text threads she no longer added to.</p>
+    <p id="p15">It was not that she was unhappy. Unhappiness was too simple, too clean an explanation. She was something more complicated — she was full and she was empty, and both were true at the same time, and the market was responsible for both, and she would not give it up, and she knew this, and she sat with it the way she sat with everything: alone, in the blue light, accounting for what was lost and what remained.</p>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◦</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VI</div>
+    <div class="chapter-heading">What the Screen Knows</div>
+    <p id="p16">There was a version of intimacy she had developed with the market that she could not explain to anyone and no longer tried. She knew its moods. She knew when it was lying. She could feel a distribution day the way you feel a change in barometric pressure — not in the data, not yet, but in some register below thought, in the body. The market had become the most consistent relationship in her life, and she was aware of how that sounded, and she said it to no one.</p>
+    <p id="p17">Sometimes, late in the session, when the volatility settled and the tape moved in long slow swells, she would catch herself talking to the screens. Not strategy — not thinking out loud about levels and setups. Just talking. Did you have to do that. I know what you're doing. You're not as clever as you think you are. The screen said nothing. The screen was always there. In its cold consistency it had become, perversely, a kind of company. The most reliable company she had.</p>
+    <div class="inner-thought" id="it4">And isn't that the real erosion. Not the money. Not the sleep. Not the plants or the unanswered texts. It's that you stopped needing the things that used to fill the room, because the room is already full of this — of numbers and noise and the particular loneliness of someone who has chosen a life that cannot be shared. You made your world very small and very deep. You are the only one who lives in it.</div>
+  </div>
+
+  <div class="divider"><span class="divider-sym">◦</span></div>
+
+  <div class="section">
+    <div class="chapter-label">Chapter VII</div>
+    <div class="chapter-heading">Sunday Morning</div>
+    <p id="p18">In March she bought a new plant. She wasn't sure why — impulse, maybe, or something older than impulse. It was small and green and the tag said it bloomed purple flowers in spring. She put it on the windowsill where Gerald used to be. She didn't name it. She watered it on Sunday morning, standing at the window in the early light, the screens dark behind her for one of the only hours in the week when they were.</p>
+    <p id="p19">The market would open Monday at 4 AM. She knew this. She would be awake before it, coffee in hand, watching the futures for what they carried. She would win some and she would lose some and she would sit with both in the way she had learned to sit with things — without softening them, without needing a witness, in the particular silence of a life built entirely around something most people would never understand.</p>
+    <p id="p20">But on Sunday morning the screens were dark. The plant was on the windowsill. And for one hour, she was just a woman standing in her apartment in the early light, watching a small thing grow, not asking it to be anything other than what it was.</p>
+    <p id="p21">It was not healing. It was not transformation. It was just a Sunday. But she was in it, and she was present, and for now that was enough.</p>
+  </div>
+
+  <div class="end-mark">◦ ◦ ◦</div>
+
+</div>
+
+<script>
+  const paragraphIds = ['p1','p2','p3','p4','it1','p5','pq1','p6','p7','p8','it2','p9','p10','p11','it3','p12','pq2','p13','p14','p15','p16','p17','it4','p18','p19','p20','p21'];
+  const chapterLabels = {
+    p1:'Chapter I — Before', p3:'Chapter II — The Architecture of a Day',
+    p6:'Chapter III — Winning Alone', p10:'Chapter IV — Losing Alone',
+    p13:'Chapter V — The Person She Was Becoming', p16:'Chapter VI — What the Screen Knows',
+    p18:'Chapter VII — Sunday Morning'
+  };
+
+  let speaking=false, paused=false, currentIndex=0;
+  let speeds=[0.85,1,1.15,1.3], speedIndex=1;
+  const synth=window.speechSynthesis;
+
+  function getVoice(){
+    const voices=synth.getVoices();
+    return voices.find(v=>(v.name.includes('Samantha')||v.name.includes('Karen')||v.name.includes('Google UK English Female')||v.name.includes('Victoria'))&&v.lang.startsWith('en'))
+      || voices.find(v=>v.lang.startsWith('en-')) || voices[0];
+  }
+
+  function updateIcon(playing){
+    document.getElementById('playIcon').innerHTML = playing
+      ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+  }
+
+  function clearHL(){
+    document.querySelectorAll('.reading-highlight').forEach(el=>el.classList.remove('reading-highlight'));
+  }
+
+  function highlight(id){
+    clearHL();
+    const el=document.getElementById(id);
+    if(el){ el.classList.add('reading-highlight'); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }
+
+  function speakFrom(index){
+    synth.cancel();
+    currentIndex=index;
+    function next(){
+      if(currentIndex>=paragraphIds.length){
+        speaking=false; paused=false;
+        updateIcon(false); clearHL();
+        document.getElementById('waveform').classList.remove('active');
+        document.getElementById('narratorStatus').textContent='Finished — press play to restart';
+        document.getElementById('narratorStatus').classList.remove('speaking');
+        document.getElementById('progressFill').style.width='100%';
+        return;
+      }
+      const id=paragraphIds[currentIndex];
+      const el=document.getElementById(id);
+      if(!el){ currentIndex++; next(); return; }
+      const text=el.innerText.replace(/[◦—]/g,'').trim();
+      if(!text){ currentIndex++; next(); return; }
+
+      highlight(id);
+      const label=chapterLabels[id];
+      if(label){ document.getElementById('narratorStatus').textContent=label; document.getElementById('narratorStatus').classList.add('speaking'); }
+      document.getElementById('progressFill').style.width=((currentIndex/paragraphIds.length)*100)+'%';
+
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=getVoice(); u.rate=speeds[speedIndex]; u.pitch=0.95; u.volume=1;
+      u.onend=()=>{ if(!speaking)return; currentIndex++; next(); };
+      u.onerror=()=>{ currentIndex++; next(); };
+      synth.speak(u);
+    }
+    next();
+  }
+
+  function toggleNarrator(){
+    if(!speaking&&!paused){
+      speaking=true; updateIcon(true);
+      document.getElementById('waveform').classList.add('active');
+      if(synth.getVoices().length===0){ synth.onvoiceschanged=()=>speakFrom(currentIndex); }
+      else speakFrom(currentIndex);
+    } else if(speaking&&!paused){
+      synth.pause(); paused=true; speaking=false;
+      updateIcon(false); document.getElementById('waveform').classList.remove('active');
+      document.getElementById('narratorStatus').textContent='Paused — press play to continue';
+    } else if(paused){
+      synth.resume(); paused=false; speaking=true;
+      updateIcon(true); document.getElementById('waveform').classList.add('active');
+    }
+  }
+
+  function cycleSpeed(){
+    speedIndex=(speedIndex+1)%speeds.length;
+    document.getElementById('speedBtn').textContent=['0.85×','1×','1.15×','1.3×'][speedIndex];
+    if(speaking){ synth.cancel(); speakFrom(currentIndex); }
+  }
+
+  if(typeof speechSynthesis!=='undefined'){ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices(); }
+</script>
+</body>
+</html>

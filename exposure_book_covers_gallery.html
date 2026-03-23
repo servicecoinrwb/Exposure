@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Bebas+Neue&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060709;font-family:'Cormorant Garamond',serif;padding:32px 24px 60px}
+.gallery-header{text-align:center;margin-bottom:40px}
+.gallery-header h2{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.35em;color:#2a3a50;margin-bottom:4px}
+.gallery-header p{font-style:italic;font-size:0.85rem;color:#1a2030}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:900px;margin:0 auto}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+.cover-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer}
+.cover-wrap:hover .cover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.6)}
+.cover{width:100%;aspect-ratio:2/3;position:relative;overflow:hidden;transition:transform 0.3s,box-shadow 0.3s;box-shadow:0 6px 24px rgba(0,0,0,0.5)}
+.cover svg{width:100%;height:100%;display:block}
+.cover-meta{text-align:center}
+.cover-meta .num{font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:0.25em;color:#1a2535;margin-bottom:2px}
+.cover-meta .title{font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:#5a6878;font-weight:600}
+</style>
+</head>
+<body>
+<div class="gallery-header">
+  <h2>Exposure — The Scalper Chronicles</h2>
+  <p>Complete Series · Eight Volumes</p>
+</div>
+<div class="grid">
+
+<!-- BOOK 1: TRENCH WARRIORS -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#0a0302"/>
+  <!-- Ground / trench mud -->
+  <rect x="0" y="220" width="200" height="80" fill="#120808"/>
+  <!-- Candlestick soldiers — red wicks = men standing in trenches -->
+  <line x1="30" y1="60" x2="30" y2="220" stroke="#8a2010" stroke-width="1" opacity="0.6"/>
+  <line x1="52" y1="40" x2="52" y2="220" stroke="#a02818" stroke-width="1" opacity="0.7"/>
+  <line x1="74" y1="80" x2="74" y2="220" stroke="#8a2010" stroke-width="1" opacity="0.5"/>
+  <line x1="96" y1="50" x2="96" y2="220" stroke="#c03020" stroke-width="1.5" opacity="0.9"/>
+  <line x1="118" y1="70" x2="118" y2="220" stroke="#8a2010" stroke-width="1" opacity="0.6"/>
+  <line x1="140" y1="45" x2="140" y2="220" stroke="#a02818" stroke-width="1" opacity="0.7"/>
+  <line x1="162" y1="85" x2="162" y2="220" stroke="#8a2010" stroke-width="1" opacity="0.5"/>
+  <!-- Bodies / candles -->
+  <rect x="24" y="130" width="12" height="55" fill="#6a1808" opacity="0.8"/>
+  <rect x="46" y="110" width="12" height="70" fill="#501008" opacity="0.9"/>
+  <rect x="68" y="140" width="12" height="50" fill="#6a1808" opacity="0.7"/>
+  <rect x="90" y="120" width="12" height="70" fill="#c03020" opacity="0.95"/>
+  <rect x="112" y="135" width="12" height="55" fill="#6a1808" opacity="0.8"/>
+  <rect x="134" y="115" width="12" height="65" fill="#501008" opacity="0.9"/>
+  <rect x="156" y="145" width="12" height="45" fill="#6a1808" opacity="0.7"/>
+  <!-- Barbed wire suggestion -->
+  <path d="M0 210 Q25 205 50 210 Q75 215 100 210 Q125 205 150 210 Q175 215 200 210" fill="none" stroke="#1e1010" stroke-width="1.5"/>
+  <!-- Mist/smoke -->
+  <ellipse cx="100" cy="200" rx="90" ry="20" fill="#180808" opacity="0.5"/>
+  <!-- Red glow horizon -->
+  <ellipse cx="100" cy="220" rx="80" ry="12" fill="#c03020" opacity="0.08"/>
+  <!-- Series label -->
+  <text x="100" y="20" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#2a1010" letter-spacing="3">EXPOSURE · I</text>
+  <!-- Title -->
+  <text x="100" y="256" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="16" fill="#c03020" font-weight="700" letter-spacing="1">TRENCH</text>
+  <text x="100" y="272" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="16" fill="#c03020" font-weight="700" letter-spacing="1">WARRIORS</text>
+  <text x="100" y="289" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#3a1818" letter-spacing="1" font-style="italic">Danny Reyes</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK I</div><div class="title">Trench Warriors</div></div>
+</div>
+
+<!-- BOOK 2: THE EROSION -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#05080f"/>
+  <!-- Screen glow — receding rectangles suggesting erosion -->
+  <rect x="20" y="60" width="160" height="120" fill="none" stroke="#1a2a50" stroke-width="0.5" opacity="0.9"/>
+  <rect x="30" y="70" width="140" height="100" fill="none" stroke="#1a3060" stroke-width="0.5" opacity="0.75"/>
+  <rect x="40" y="80" width="120" height="80" fill="none" stroke="#1e3870" stroke-width="0.5" opacity="0.6"/>
+  <rect x="50" y="90" width="100" height="60" fill="none" stroke="#243888" stroke-width="0.5" opacity="0.5"/>
+  <rect x="60" y="100" width="80" height="40" fill="#0a1428" opacity="0.9"/>
+  <rect x="60" y="100" width="80" height="40" fill="none" stroke="#2a4a7a" stroke-width="0.5" opacity="0.8"/>
+  <!-- Screen text suggestion -->
+  <line x1="68" y1="112" x2="132" y2="112" stroke="#1e3060" stroke-width="1" opacity="0.6"/>
+  <line x1="68" y1="120" x2="110" y2="120" stroke="#1e3060" stroke-width="1" opacity="0.4"/>
+  <line x1="68" y1="128" x2="122" y2="128" stroke="#1e3060" stroke-width="1" opacity="0.3"/>
+  <!-- Plant on windowsill — faded, almost gone -->
+  <line x1="100" y1="210" x2="100" y2="185" stroke="#1a2a18" stroke-width="1.5" opacity="0.7"/>
+  <ellipse cx="95" cy="183" rx="8" ry="5" fill="#1a2a18" opacity="0.5"/>
+  <ellipse cx="106" cy="188" rx="6" ry="4" fill="#1a2818" opacity="0.4"/>
+  <!-- Pot -->
+  <path d="M92 210 L88 225 L112 225 L108 210Z" fill="#141820" opacity="0.8"/>
+  <!-- Purple flower — small, brave -->
+  <circle cx="95" cy="180" r="3" fill="#3a2060" opacity="0.7"/>
+  <circle cx="106" cy="185" r="2.5" fill="#3a2060" opacity="0.5"/>
+  <!-- Floor/windowsill -->
+  <rect x="60" y="222" width="80" height="3" fill="#0e1220" opacity="0.8"/>
+  <!-- Screen light on wall -->
+  <rect x="0" y="55" width="200" height="130" fill="#0a1428" opacity="0.15"/>
+  <!-- Series -->
+  <text x="100" y="20" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#0e1828" letter-spacing="3">EXPOSURE · II</text>
+  <!-- Title -->
+  <text x="100" y="258" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#2a4a7a" font-weight="700" letter-spacing="2">THE</text>
+  <text x="100" y="276" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#2a4a7a" font-weight="700" letter-spacing="2">EROSION</text>
+  <text x="100" y="291" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#1a2838" letter-spacing="1" font-style="italic">Renee Cole</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK II</div><div class="title">The Erosion</div></div>
+</div>
+
+<!-- BOOK 3: THE COMEBACK -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#0a0602"/>
+  <!-- Bare desk surface -->
+  <rect x="0" y="195" width="200" height="6" fill="#1a0e06" opacity="0.9"/>
+  <!-- Single small account — the number that means everything -->
+  <rect x="55" y="140" width="90" height="50" fill="#100a04" opacity="0.95"/>
+  <rect x="55" y="140" width="90" height="50" fill="none" stroke="#2a1808" stroke-width="0.5"/>
+  <text x="100" y="158" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#3a2010" letter-spacing="2">ACCOUNT BALANCE</text>
+  <text x="100" y="178" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="16" fill="#8b4513" font-weight="700">$8,000.00</text>
+  <!-- Journal on desk -->
+  <rect x="30" y="198" width="55" height="70" fill="#0e0804" opacity="0.9"/>
+  <line x1="35" y1="210" x2="78" y2="210" stroke="#1a1008" stroke-width="0.5"/>
+  <line x1="35" y1="220" x2="78" y2="220" stroke="#1a1008" stroke-width="0.5"/>
+  <line x1="35" y1="230" x2="78" y2="230" stroke="#1a1008" stroke-width="0.5"/>
+  <line x1="35" y1="240" x2="60" y2="240" stroke="#8b4513" stroke-width="0.5" opacity="0.5"/>
+  <!-- Coffee cup suggestion -->
+  <ellipse cx="155" cy="206" rx="14" ry="5" fill="#0e0804"/>
+  <rect x="141" y="206" width="28" height="30" fill="#0e0804" opacity="0.9"/>
+  <ellipse cx="155" cy="236" rx="14" ry="5" fill="#0e0804" opacity="0.8"/>
+  <!-- Light from above — single bulb of hope -->
+  <ellipse cx="100" cy="50" rx="12" ry="12" fill="none" stroke="#8b4513" stroke-width="0.5" opacity="0.6"/>
+  <line x1="100" y1="30" x2="100" y2="45" stroke="#3a2010" stroke-width="1"/>
+  <ellipse cx="100" cy="60" rx="40" ry="18" fill="#8b4513" opacity="0.04"/>
+  <ellipse cx="100" cy="80" rx="60" ry="30" fill="#8b4513" opacity="0.03"/>
+  <!-- Voice note — margin scrawl -->
+  <text x="32" y="245" font-family="'Cormorant Garamond',Georgia,serif" font-size="6" fill="#3a2010" font-style="italic">DO NOT TAKE IT</text>
+  <!-- Series -->
+  <text x="100" y="20" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#1a0e06" letter-spacing="3">EXPOSURE · III</text>
+  <text x="100" y="262" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#8b4513" font-weight="700" letter-spacing="1">THE</text>
+  <text x="100" y="280" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#8b4513" font-weight="700" letter-spacing="1">COMEBACK</text>
+  <text x="100" y="294" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#2a1808" letter-spacing="1" font-style="italic">Marcus Webb</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK III</div><div class="title">The Comeback</div></div>
+</div>
+
+<!-- BOOK 4: THE KID -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#040d0a"/>
+  <!-- Dorm room dark -->
+  <rect x="0" y="160" width="200" height="140" fill="#050d08" opacity="0.9"/>
+  <!-- Laptop screen glow — the whole world -->
+  <rect x="45" y="130" width="110" height="72" rx="3" fill="#0a1e18"/>
+  <rect x="45" y="130" width="110" height="72" rx="3" fill="none" stroke="#1a6a5a" stroke-width="0.7" opacity="0.8"/>
+  <!-- Screen content — level II quotes streaming -->
+  <line x1="55" y1="142" x2="145" y2="142" stroke="#1a6a5a" stroke-width="0.5" opacity="0.5"/>
+  <line x1="55" y1="150" x2="130" y2="150" stroke="#1a6a5a" stroke-width="0.5" opacity="0.7"/>
+  <line x1="55" y1="158" x2="140" y2="158" stroke="#1a6a5a" stroke-width="0.5" opacity="0.4"/>
+  <line x1="55" y1="166" x2="125" y2="166" stroke="#1a6a5a" stroke-width="0.5" opacity="0.6"/>
+  <line x1="55" y1="174" x2="138" y2="174" stroke="#1a6a5a" stroke-width="0.5" opacity="0.3"/>
+  <line x1="55" y1="182" x2="145" y2="182" stroke="#1a6a5a" stroke-width="0.5" opacity="0.5"/>
+  <!-- Laptop base -->
+  <path d="M35 202L165 202L175 210L25 210Z" fill="#0a1810" opacity="0.9"/>
+  <!-- Screen glow on desk/face -->
+  <ellipse cx="100" cy="215" rx="70" ry="15" fill="#1a6a5a" opacity="0.06"/>
+  <!-- Red bull / energy drink can suggestion -->
+  <rect x="162" y="190" width="12" height="22" rx="2" fill="#0d0505" opacity="0.8"/>
+  <!-- Phone face-down -->
+  <rect x="22" y="196" width="22" height="14" rx="2" fill="#080d0a" opacity="0.8"/>
+  <!-- Green teal glow from screen on walls -->
+  <rect x="0" y="0" width="200" height="150" fill="#1a6a5a" opacity="0.02"/>
+  <!-- Ceiling / dark -->
+  <rect x="0" y="0" width="200" height="50" fill="#020806"/>
+  <!-- Series -->
+  <text x="100" y="22" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#0a1a14" letter-spacing="3">EXPOSURE · IV</text>
+  <!-- Title -->
+  <text x="100" y="260" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="22" fill="#1a6a5a" font-weight="700" letter-spacing="3">THE</text>
+  <text x="100" y="280" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="22" fill="#1a6a5a" font-weight="700" letter-spacing="3">KID</text>
+  <text x="100" y="294" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#0e2018" letter-spacing="1" font-style="italic">Jordan Tae</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK IV</div><div class="title">The Kid</div></div>
+</div>
+
+<!-- BOOK 5: NIGHT SHIFT -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#04050e"/>
+  <!-- London skyline suggestion — dark rectangles -->
+  <rect x="10" y="150" width="18" height="80" fill="#080a18" opacity="0.9"/>
+  <rect x="32" y="130" width="14" height="100" fill="#080a18" opacity="0.9"/>
+  <rect x="50" y="160" width="22" height="70" fill="#080a18" opacity="0.9"/>
+  <rect x="76" y="100" width="10" height="130" fill="#080a18" opacity="0.9"/><!-- tall building -->
+  <rect x="90" y="140" width="20" height="90" fill="#080a18" opacity="0.9"/>
+  <rect x="115" y="120" width="16" height="110" fill="#080a18" opacity="0.9"/>
+  <rect x="135" y="150" width="24" height="80" fill="#080a18" opacity="0.9"/>
+  <rect x="163" y="135" width="18" height="95" fill="#080a18" opacity="0.9"/>
+  <!-- Building lights — scattered warm dots -->
+  <rect x="14" y="158" width="4" height="3" fill="#2a3a7a" opacity="0.8"/>
+  <rect x="36" y="142" width="4" height="3" fill="#1a2a60" opacity="0.6"/>
+  <rect x="80" y="115" width="3" height="3" fill="#2a3a7a" opacity="0.9"/>
+  <rect x="80" y="128" width="3" height="3" fill="#2a3a7a" opacity="0.5"/>
+  <rect x="117" y="132" width="4" height="3" fill="#1a2a60" opacity="0.7"/>
+  <rect x="140" y="162" width="4" height="3" fill="#2a3a7a" opacity="0.6"/>
+  <rect x="167" y="148" width="4" height="3" fill="#1a2a60" opacity="0.8"/>
+  <!-- Thames reflection -->
+  <rect x="0" y="230" width="200" height="40" fill="#030408" opacity="0.9"/>
+  <line x1="0" y1="232" x2="200" y2="232" stroke="#0a0e20" stroke-width="0.5"/>
+  <!-- Reflected light in water -->
+  <ellipse cx="81" cy="242" rx="4" ry="8" fill="#1a2a60" opacity="0.15"/>
+  <ellipse cx="119" cy="245" rx="3" ry="6" fill="#1a2a60" opacity="0.1"/>
+  <!-- Moon -->
+  <circle cx="160" cy="40" r="12" fill="#060810" opacity="0"/>
+  <path d="M155 32 Q168 36 168 48 Q168 58 158 62 Q170 58 172 46 Q172 34 160 28 Q157 29 155 32Z" fill="#0e1428" opacity="0.7"/>
+  <!-- Clock on desk — Priya's desk -->
+  <text x="100" y="85" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="22" fill="#0e1428" letter-spacing="4">02:47</text>
+  <text x="100" y="100" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="8" fill="#0a1028" letter-spacing="2">LONDON</text>
+  <!-- Series -->
+  <text x="100" y="22" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#0a0e20" letter-spacing="3">EXPOSURE · V</text>
+  <text x="100" y="260" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#2a3a7a" font-weight="700" letter-spacing="2">NIGHT</text>
+  <text x="100" y="278" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#2a3a7a" font-weight="700" letter-spacing="2">SHIFT</text>
+  <text x="100" y="293" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#141828" letter-spacing="1" font-style="italic">Priya Nair</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK V</div><div class="title">Night Shift</div></div>
+</div>
+
+<!-- BOOK 6: THE VETERAN -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#08060a"/>
+  <!-- Ferry water — horizontal layers of time -->
+  <rect x="0" y="170" width="200" height="130" fill="#090608"/>
+  <!-- Water ripples / decades -->
+  <path d="M0 180 Q50 176 100 180 Q150 184 200 180" fill="none" stroke="#1e1410" stroke-width="0.8" opacity="0.9"/>
+  <path d="M0 195 Q50 191 100 195 Q150 199 200 195" fill="none" stroke="#1a1210" stroke-width="0.6" opacity="0.7"/>
+  <path d="M0 210 Q50 206 100 210 Q150 214 200 210" fill="none" stroke="#161010" stroke-width="0.5" opacity="0.5"/>
+  <path d="M0 225 Q50 221 100 225 Q150 229 200 225" fill="none" stroke="#141010" stroke-width="0.4" opacity="0.4"/>
+  <!-- Ferry silhouette -->
+  <path d="M40 170 L160 170 L170 158 L145 150 L55 150 L30 158Z" fill="#100a08" opacity="0.95"/>
+  <rect x="80" y="130" width="40" height="22" fill="#0e0808" opacity="0.9"/>
+  <line x1="100" y1="110" x2="100" y2="132" stroke="#0e0808" stroke-width="2"/>
+  <!-- Manhattan skyline in distance -->
+  <rect x="60" y="100" width="8" height="55" fill="#0a0808" opacity="0.5"/>
+  <rect x="72" y="88" width="6" height="67" fill="#0a0808" opacity="0.4"/>
+  <rect x="82" y="105" width="10" height="50" fill="#0a0808" opacity="0.5"/>
+  <rect x="96" y="95" width="8" height="60" fill="#0a0808" opacity="0.4"/>
+  <rect x="108" y="100" width="10" height="55" fill="#0a0808" opacity="0.5"/>
+  <rect x="122" y="90" width="7" height="65" fill="#0a0808" opacity="0.4"/>
+  <rect x="133" y="110" width="8" height="45" fill="#0a0808" opacity="0.5"/>
+  <!-- Amber sunrise/sunset glow — thirty years -->
+  <ellipse cx="100" cy="100" rx="80" ry="30" fill="#5a3a2a" opacity="0.06"/>
+  <ellipse cx="100" cy="112" rx="60" ry="20" fill="#5a3a2a" opacity="0.08"/>
+  <rect x="0" y="60" width="200" height="60" fill="#5a3a2a" opacity="0.04"/>
+  <!-- Worn texture lines — age, time -->
+  <line x1="0" y1="40" x2="200" y2="40" stroke="#1a1010" stroke-width="0.3" opacity="0.5"/>
+  <line x1="0" y1="50" x2="200" y2="50" stroke="#1a1010" stroke-width="0.3" opacity="0.3"/>
+  <!-- Year marks — thirty years -->
+  <text x="25" y="52" font-family="'Bebas Neue',sans-serif" font-size="6" fill="#1a1010" letter-spacing="1">1995</text>
+  <text x="85" y="52" font-family="'Bebas Neue',sans-serif" font-size="6" fill="#1a1010" letter-spacing="1">2010</text>
+  <text x="148" y="52" font-family="'Bebas Neue',sans-serif" font-size="6" fill="#2a1810" letter-spacing="1">2025</text>
+  <!-- Series -->
+  <text x="100" y="22" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#140e08" letter-spacing="3">EXPOSURE · VI</text>
+  <text x="100" y="260" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#5a3a2a" font-weight="700" letter-spacing="2">THE</text>
+  <text x="100" y="278" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#5a3a2a" font-weight="700" letter-spacing="2">VETERAN</text>
+  <text x="100" y="293" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#1e1410" letter-spacing="1" font-style="italic">Ray Costello</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK VI</div><div class="title">The Veteran</div></div>
+</div>
+
+<!-- BOOK 7: THE QUANT -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#030508"/>
+  <!-- Code rain — falling data -->
+  <text x="12"  y="45"  font-family="'Courier New',monospace" font-size="6" fill="#0e2040" opacity="0.9">def vol_decay(</text>
+  <text x="12"  y="56"  font-family="'Courier New',monospace" font-size="6" fill="#0a1830" opacity="0.7">  param=0.91</text>
+  <text x="12"  y="67"  font-family="'Courier New',monospace" font-size="6" fill="#0e2040" opacity="0.5">): return σ</text>
+  <text x="12"  y="90"  font-family="'Courier New',monospace" font-size="6" fill="#0a1830" opacity="0.4">STATUS: live</text>
+  <text x="12"  y="101" font-family="'Courier New',monospace" font-size="6" fill="#0e2040" opacity="0.3">SHARPE: 2.34</text>
+  <text x="110" y="45"  font-family="'Courier New',monospace" font-size="6" fill="#0a1830" opacity="0.6">if exposure&gt;</text>
+  <text x="110" y="56"  font-family="'Courier New',monospace" font-size="6" fill="#0e2040" opacity="0.8">  limit: halt</text>
+  <text x="110" y="67"  font-family="'Courier New',monospace" font-size="6" fill="#0a1830" opacity="0.5">  alert(CRIT)</text>
+  <text x="110" y="90"  font-family="'Courier New',monospace" font-size="6" fill="#0e2040" opacity="0.4">LARK-4 v4.2</text>
+  <!-- 4:47 AM — the moment -->
+  <rect x="30" y="115" width="140" height="55" fill="#04060c" opacity="0.9"/>
+  <rect x="30" y="115" width="140" height="55" fill="none" stroke="#0e1830" stroke-width="0.5"/>
+  <text x="100" y="133" text-anchor="middle" font-family="'Courier New',monospace" font-size="7" fill="#1a3060" letter-spacing="2">CRITICAL ALERT</text>
+  <text x="100" y="148" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="20" fill="#1a3060" letter-spacing="3">04:47</text>
+  <text x="100" y="162" text-anchor="middle" font-family="'Courier New',monospace" font-size="6" fill="#0e1828" letter-spacing="1">EXPOSURE: 347%</text>
+  <!-- Error cascade lines -->
+  <line x1="30" y1="175" x2="170" y2="175" stroke="#0e1828" stroke-width="0.5" opacity="0.6"/>
+  <text x="35" y="186" font-family="'Courier New',monospace" font-size="6" fill="#1a3060" opacity="0.8">PNL: -$284,447</text>
+  <text x="35" y="197" font-family="'Courier New',monospace" font-size="6" fill="#0e1828" opacity="0.6">CAUSE: unknown</text>
+  <text x="35" y="208" font-family="'Courier New',monospace" font-size="6" fill="#0e1828" opacity="0.4">MODEL: running</text>
+  <!-- Her hands on keyboard -->
+  <line x1="60" y1="230" x2="140" y2="230" stroke="#0a1220" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+  <line x1="70" y1="230" x2="70" y2="240" stroke="#0a1220" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <line x1="88" y1="230" x2="88" y2="242" stroke="#0a1220" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <line x1="106" y1="230" x2="106" y2="241" stroke="#0a1220" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <line x1="124" y1="230" x2="124" y2="240" stroke="#0a1220" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <!-- Series -->
+  <text x="100" y="22" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#08101e" letter-spacing="3">EXPOSURE · VII</text>
+  <text x="100" y="262" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#1a3060" font-weight="700" letter-spacing="2">THE</text>
+  <text x="100" y="280" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="18" fill="#1a3060" font-weight="700" letter-spacing="2">QUANT</text>
+  <text x="100" y="294" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#0e1828" letter-spacing="1" font-style="italic">Elena Vasquez</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK VII</div><div class="title">The Quant</div></div>
+</div>
+
+<!-- BOOK 8: THE LAST TRADE -->
+<div class="cover-wrap">
+<div class="cover">
+<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="300" fill="#080706"/>
+  <!-- Seven lines converging to a single point — the market event -->
+  <line x1="10"  y1="30"  x2="100" y2="175" stroke="#c0392b" stroke-width="0.8" opacity="0.7"/>
+  <line x1="40"  y1="20"  x2="100" y2="175" stroke="#2a4a7a" stroke-width="0.8" opacity="0.7"/>
+  <line x1="75"  y1="15"  x2="100" y2="175" stroke="#8b4513" stroke-width="0.8" opacity="0.7"/>
+  <line x1="100" y1="12"  x2="100" y2="175" stroke="#1a6a5a" stroke-width="0.8" opacity="0.7"/>
+  <line x1="125" y1="15"  x2="100" y2="175" stroke="#2a3a7a" stroke-width="0.8" opacity="0.7"/>
+  <line x1="160" y1="20"  x2="100" y2="175" stroke="#5a3a2a" stroke-width="0.8" opacity="0.7"/>
+  <line x1="190" y1="30"  x2="100" y2="175" stroke="#1a3060" stroke-width="0.8" opacity="0.7"/>
+  <!-- The convergence point -->
+  <circle cx="100" cy="175" r="5" fill="#c8a050" opacity="0.9"/>
+  <circle cx="100" cy="175" r="10" fill="none" stroke="#c8a050" stroke-width="0.5" opacity="0.5"/>
+  <circle cx="100" cy="175" r="18" fill="none" stroke="#c8a050" stroke-width="0.3" opacity="0.3"/>
+  <circle cx="100" cy="175" r="28" fill="none" stroke="#c8a050" stroke-width="0.2" opacity="0.15"/>
+  <!-- Lines diverge below — aftermath -->
+  <line x1="100" y1="175" x2="18"  y2="260" stroke="#c0392b" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <line x1="100" y1="175" x2="44"  y2="268" stroke="#2a4a7a" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <line x1="100" y1="175" x2="72"  y2="272" stroke="#8b4513" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <line x1="100" y1="175" x2="100" y2="274" stroke="#1a6a5a" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <line x1="100" y1="175" x2="128" y2="272" stroke="#2a3a7a" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <line x1="100" y1="175" x2="156" y2="268" stroke="#5a3a2a" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <line x1="100" y1="175" x2="182" y2="260" stroke="#1a3060" stroke-width="0.6" opacity="0.35" stroke-dasharray="2 3"/>
+  <!-- Series -->
+  <text x="100" y="22" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7" fill="#1a1608" letter-spacing="3">EXPOSURE · VIII</text>
+  <!-- Character names tiny at top — all of them -->
+  <text x="14"  y="38" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#2a1808" font-style="italic">Danny</text>
+  <text x="34"  y="28" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#1a2030" font-style="italic">Renee</text>
+  <text x="66"  y="22" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#2a1808" font-style="italic">Marcus</text>
+  <text x="95"  y="18" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#0e2018" font-style="italic">Jordan</text>
+  <text x="120" y="22" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#1a1828" font-style="italic">Priya</text>
+  <text x="152" y="28" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#1e1208" font-style="italic">Ray</text>
+  <text x="178" y="38" font-family="'Cormorant Garamond',Georgia,serif" font-size="5.5" fill="#0a1020" font-style="italic">Elena</text>
+  <!-- Title -->
+  <text x="100" y="262" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="14" fill="#c8a050" font-weight="700" letter-spacing="2">THE LAST</text>
+  <text x="100" y="280" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="14" fill="#c8a050" font-weight="700" letter-spacing="2">TRADE</text>
+  <text x="100" y="294" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="7" fill="#2a2010" letter-spacing="1" font-style="italic">All Seven</text>
+</svg>
+</div>
+<div class="cover-meta"><div class="num">BOOK VIII</div><div class="title">The Last Trade</div></div>
+</div>
+
+</div>
+</body>
+</html>
